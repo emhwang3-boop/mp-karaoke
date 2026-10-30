@@ -54,7 +54,7 @@ function reopen(){ var b=document.getElementById("karBox"), keepPay=b&&b.querySe
   if(window.karClose) karClose(); if(window.karOpen) karOpen("site"); }
 new MutationObserver(function(ms){ for(var i=0;i<ms.length;i++) for(var j=0;j<ms[i].addedNodes.length;j++){ var n=ms[i].addedNodes[j]; if(n.id==="karBox"){ deco(); return; } } }).observe(document.body,{childList:true});
 // ── 공유 링크로 들어온 손님 화면 ?v=<영상id> (사장님 10-30) — 첫 로고 화면 건너뛰고 영상 카드 한 장
-//   손님 기기(mp_owner 없음)도 이 화면만은 열린다 · 허브 /kst/pv (열쇠 없이) — 전체 공개만 영상, 팔로워만·우리끼리는 잠김 안내
+//   누구나 · 허브 /kst/pv (열쇠 없이) — 전체 공개만 영상, 팔로워만·우리끼리는 잠김 안내
 var VQ=(location.search.match(/[?&]v=([0-9a-f]{16})(?![0-9a-z])/i)||[])[1]||""; VQ=VQ.toLowerCase();
 var VT={sing:{ko:"{n}님의 노래",en:"Sung by {n}",ja:"{n}さんの歌",zhs:"{n} 的演唱",zht:"{n} 的演唱",es:"Cantada por {n}"},
  try:{ko:"나도 도전",en:"Sing it myself",ja:"自分も歌ってみる",zhs:"我也来唱",zht:"我也來唱",es:"Cantar yo también"},
@@ -85,16 +85,16 @@ function vPage(){ var pre=document.getElementById("pre"); if(pre) pre.style.disp
   fetch(HUB+"/kst/pv?id="+VQ+"&dev="+encodeURIComponent(vDev())).then(function(r){ return r.json(); }).then(function(j){ draw(j,j&&j.ok?"ok":"no"); }).catch(function(){ draw(null,"no"); });
   try{ ntap("kara_site","pv_open"); }catch(e){} }
 // ── 우리끼리 방 카톡 초대 링크 ?rinv=<토큰> (사장님 10-31) — 토큰은 localStorage "kst_rinv" {tok,at} 에 보관(설치 뒤·오픈 뒤에도 쓰게)
-//   사장님 기기(mp_owner) = 노래방 열고 karRoomJoin(허브 join → 스테이지 › 우리끼리 › 그 방) · 손님 기기 = 「곧 오픈 예정」 + 「앱 설치」 안내만
+//   (10-31 출시판) 누구나 — 브라우저(앱 밖)는 초대 카드(「앱 설치」·「노래방 입장」) → 노래방 열고 karRoomJoin(로그인 전이면 로그인부터 → 허브 join → 스테이지 › 우리끼리 › 그 방) · 앱 안은 바로 입장
 var RT={hd:{ko:"우리끼리 방 초대",en:"Just-us room invitation",ja:"「仲間だけ」ルームへの招待",zhs:"小圈子房间邀请",zht:"小圈子房間邀請",es:"Invitación a una sala «Solo nosotros»"},
- soon:{ko:"곧 오픈 예정 — 앱을 설치해 두시면 오픈 때 바로 입장할 수 있어요",en:"Opening soon — install the app now and you can enter the room as soon as it opens",ja:"近日オープン — アプリを入れておけば、オープンと同時に入室できます",zhs:"即将开放 — 先安装应用，开放时即可直接进入",zht:"即將開放 — 先安裝應用程式，開放時即可直接進入",es:"Próximamente — instala la app y podrás entrar en cuanto abra"},
+ soon:{ko:"노래방에 입장하면 초대받은 방에 바로 참여합니다",en:"Open the karaoke to join the room you were invited to",ja:"カラオケに入ると、招待されたルームにすぐ参加します",zhs:"进入练歌房即可直接加入受邀的房间",zht:"進入練歌房即可直接加入受邀的房間",es:"Abre el karaoke para unirte a la sala a la que te invitaron"},
  kar:{ko:"노래방 입장",en:"Open karaoke",ja:"カラオケを開く",zhs:"打开练歌房",zht:"開啟練歌房",es:"Abrir karaoke"}};
 var RQ=(location.search.match(/[?&]rinv=([A-Za-z0-9]{16})(?![A-Za-z0-9])/)||[])[1]||"";
 if(RQ){ try{ localStorage.setItem("kst_rinv",JSON.stringify({tok:RQ,at:Date.now()})); }catch(e){}
   try{ var rq=location.search.slice(1).split("&").filter(function(x){ return !/^rinv=/i.test(x); }).join("&"); history.replaceState(history.state,"",location.pathname+(rq?"?"+rq:"")+location.hash); }catch(e){} }
 function rTok(){ try{ var x=JSON.parse(localStorage.getItem("kst_rinv")||"null"); if(x&&/^[A-Za-z0-9]{16}$/.test(x.tok||"")&&Date.now()-(+x.at||0)<8*86400000) return x.tok; localStorage.removeItem("kst_rinv"); }catch(e){} return ""; }
-function rOwn(){ try{ return !!localStorage.getItem("mp_owner"); }catch(e){ return false; } }
-var RP=!!(RQ&&!rOwn()&&!VQ);   // 손님 기기 안내 화면이 떠 있는 동안 노래방을 열지 않는다
+function rOwn(){ return true; }   // (10-31 출시판) 사장님 기기 구분 없음 — 누구나 입장
+var RP=!!(RQ&&!isApp()&&!window.Capacitor&&!VQ);   // 브라우저 = 초대 카드(앱 설치·입장)가 떠 있는 동안 노래방을 열지 않는다 · 앱 안은 바로
 function rPage(){ var pre=document.getElementById("pre"); if(pre) pre.style.display="none"; var o=document.getElementById("karV"); if(o) o.remove();
   o=document.createElement("div"); o.id="karV"; document.body.appendChild(o);
   o.innerHTML='<div class="vin"><div class="vhd"><img src="logo.png" alt=""><div><b>Money Puzzle</b><small>StageSong</small></div></div>'
@@ -103,16 +103,16 @@ function rPage(){ var pre=document.getElementById("pre"); if(pre) pre.style.disp
   var ib=o.querySelector(".vins"); if(ib) ib.onclick=function(){ try{ ntap("kara_site","rinv_inst"); }catch(e){} vInst(); };
   o.querySelector(".vgo").onclick=function(){ try{ ntap("kara_site","rinv_kar"); }catch(e){} RP=false; o.remove(); T0=0; start(); };
   try{ ntap("kara_site","rinv_open"); }catch(e){} }
-// 노래방 화면이 생기면 보관한 토큰으로 한 번 입장 (사장님 기기만)
+// 노래방 화면이 생기면 보관한 토큰으로 한 번 입장
 var RJ=false; function rJoin(){ if(RJ||!rOwn()) return; var t=rTok(); if(!t||!window.karRoomJoin) return; var n=0;
   RJ=true; (function w(){ if(document.getElementById("karBox")){ setTimeout(function(){ window.karRoomJoin(t); },300); return; } if(++n<60) setTimeout(w,250); else RJ=false; })(); }
-// ── 챌린지 초대 ?chal=<id> · 릴레이 차례 알림 ?room=<rid> (사장님 10-31) — 사장님 기기(mp_owner) = 노래방 열고 그 챌린지·그 방 · 손님 기기 = 「곧 오픈 예정」 + 「앱 설치」(rinv 손님 화면과 같은 방식)
+// ── 챌린지 초대 ?chal=<id> · 릴레이 차례 알림 ?room=<rid> (사장님 10-31) — 누구나: 브라우저는 초대 카드(「앱 설치」·「노래방 입장」) → 노래방 열고 그 챌린지·그 방 · 앱 안은 바로
 var CT={hd:{ko:"StageSong 챌린지 초대",en:"StageSong challenge invitation",ja:"StageSongチャレンジへの招待",zhs:"StageSong 挑战邀请",zht:"StageSong 挑戰邀請",es:"Invitación a un reto de StageSong"},
  rhd:{ko:"우리끼리 방 릴레이",en:"Just-us room relay",ja:"「仲間だけ」ルームのリレー",zhs:"小圈子房间接力",zht:"小圈子房間接力",es:"Relevo de la sala «Solo nosotros»"},
- soon:{ko:"곧 오픈 예정 — 앱을 설치해 두시면 오픈 때 바로 참여할 수 있어요",en:"Opening soon — install the app now and you can join as soon as it opens",ja:"近日オープン — アプリを入れておけば、オープンと同時に参加できます",zhs:"即将开放 — 先安装应用，开放时即可直接参加",zht:"即將開放 — 先安裝應用程式，開放時即可直接參加",es:"Próximamente — instala la app y podrás participar en cuanto abra"}};
+ soon:{ko:"노래방에 입장하면 바로 참여할 수 있습니다",en:"Open the karaoke to join right away",ja:"カラオケに入ると、すぐに参加できます",zhs:"进入练歌房即可直接参加",zht:"進入練歌房即可直接參加",es:"Abre el karaoke para participar ahora mismo"}};
 var CQ=((location.search.match(/[?&]chal=([0-9a-f]{12})(?![0-9a-z])/i)||[])[1]||"").toLowerCase(), MQ=((location.search.match(/[?&]room=([0-9a-f]{12})(?![0-9a-z])/i)||[])[1]||"").toLowerCase();
 if(CQ||MQ){ try{ var cq2=location.search.slice(1).split("&").filter(function(x){ return !/^(chal|room)=/i.test(x); }).join("&"); history.replaceState(history.state,"",location.pathname+(cq2?"?"+cq2:"")+location.hash); }catch(e){} }
-var CP=!!((CQ||MQ)&&!rOwn()&&!VQ&&!RQ);   // 손님 기기 안내 화면이 떠 있는 동안 노래방을 열지 않는다
+var CP=!!((CQ||MQ)&&!isApp()&&!window.Capacitor&&!VQ&&!RQ);   // 브라우저 = 초대 카드가 떠 있는 동안 노래방을 열지 않는다 · 앱 안은 바로
 function cPage(){ var pre=document.getElementById("pre"); if(pre) pre.style.display="none"; var o=document.getElementById("karV"); if(o) o.remove();
   o=document.createElement("div"); o.id="karV"; document.body.appendChild(o);
   o.innerHTML='<div class="vin"><div class="vhd"><img src="logo.png" alt=""><div><b>Money Puzzle</b><small>StageSong</small></div></div>'
