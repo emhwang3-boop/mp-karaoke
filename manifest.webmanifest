@@ -1,0 +1,17 @@
+{
+ "name": "머니퍼즐 노래방 · Money Puzzle Karaoke",
+ "short_name": "머니퍼즐 노래방",
+ "description": "TJ·금영 공식 유튜브 노래방 영상과 곡 이용권 — 6개 언어",
+ "id": "./",
+ "start_url": "./?src=pwa",
+ "scope": "./",
+ "display": "standalone",
+ "background_color": "#12081f",
+ "theme_color": "#12081f",
+ "icons": [
+  {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+  {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+  {"src": "icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable"},
+  {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+ ]
+}
