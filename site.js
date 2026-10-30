@@ -88,7 +88,10 @@ function shareOpen(){ try{ ntap("_app","share"); }catch(e){}
 function reopen(){ var b=document.getElementById("karBox"), keepPay=b&&b.querySelector(".kpm"); if(keepPay){ deco(); return; }   // 결제 창이 열려 있으면 그 창은 karaoke.js 가 그 언어로 다시 그린다
   if(window.karClose) karClose(); if(window.karOpen) karOpen("site"); }
 new MutationObserver(function(ms){ for(var i=0;i<ms.length;i++) for(var j=0;j<ms[i].addedNodes.length;j++){ var n=ms[i].addedNodes[j]; if(n.id==="karBox"){ deco(); return; } } }).observe(document.body,{childList:true});
-function start(){ var pre=document.getElementById("pre"); if(pre) pre.style.display="none";
+var T0=Date.now(), PRE_MS=7000;   // 첫 화면 = 로고만 3초 → 로고+「Money Puzzle / StageSong」 4초 → 노래방 (사장님 10-30)
+setTimeout(function(){ var t=document.getElementById("preT"); if(t) t.style.visibility="visible"; },3000);
+function start(){ var w=PRE_MS-(Date.now()-T0); if(w>0&&!document.getElementById("karBox")){ clearTimeout(start._t); start._t=setTimeout(start,w); return; }
+  var pre=document.getElementById("pre"); if(pre) pre.style.display="none";
   if(!document.getElementById("karBox")&&window.karOpen) karOpen("site");
   try{ ntap("kara_site","tap"); }catch(e){} }
 // karaoke.js 는 ?karres= (토스에서 돌아옴)이면 0.7초 뒤 스스로 연다 — 그때는 먼저 열지 않는다
