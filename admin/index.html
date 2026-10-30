@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>머니퍼즐 노래방 · 관리</title>
+<link rel="icon" href="../favicon.png">
+<style>
+/* 머니퍼즐 노래방 관리자 (2026-10-30) — 투어앱 통계청(navi_pub/admin)과 같은 모양·같은 허브 경로. 비밀번호는 노래방 관리자 것(x-kadmin) — 노래방 경로만 열린다 */
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1b2230;--sub:#667085;--line:#e3e7ee;--acc:#7a3fd1;--bar:#a678f0;--ok:#2b8a3e;--bad:#c92a2a}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1420;--card:#171d2b;--ink:#e8ecf2;--sub:#9aa4b2;--line:#263044;--acc:#b794ff;--bar:#a678f0;--ok:#69db7c;--bad:#ff8787}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Malgun Gothic",sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:6px 0 2px;display:flex;align-items:center;gap:8px}h1 img{width:34px;height:34px;border-radius:8px;background:#fff}
+.sub{color:var(--sub);font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0}
+input,select,button{font:inherit;color:inherit}
+input[type=password],input[type=text],input[type=number],input[type=month],select{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;max-width:100%}
+button{background:var(--acc);color:#fff;border:0;border-radius:10px;padding:8px 14px;cursor:pointer}
+button.g{background:transparent;color:var(--acc);border:1px solid var(--line)}
+button.r{background:var(--bad)}
+button:disabled{opacity:.5;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.menu{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.menu button{background:var(--card);color:var(--ink);border:1px solid var(--line);text-align:left;padding:12px;border-radius:12px}
+.menu button.on{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)}
+.menu small{display:block;color:var(--sub);font-size:12px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin:10px 0}
+.tile{background:var(--bg);border-radius:12px;padding:10px}.tile b{display:block;font-size:22px}.tile span{color:var(--sub);font-size:12px}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 6px;border-bottom:1px solid var(--line);white-space:nowrap;text-align:right}
+th{color:var(--sub);font-weight:600;font-size:12px}
+td.l,th.l{text-align:left;white-space:normal;min-width:110px}
+.msg{color:var(--sub);font-size:13px;margin-top:6px}
+.err{color:var(--bad)}.ok{color:var(--ok)}
+.tag{display:inline-block;border-radius:6px;padding:1px 6px;font-size:11.5px;font-weight:700;background:var(--bg)}
+.tag.t{background:#fff3bf;color:#7a5b00}.tag.k{background:#efe3ff;color:#5b2aa8}
+.bar{height:9px;border-radius:5px;background:var(--bar)}
+.inv{background:var(--bg);border-radius:10px;padding:10px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1><img src="../logo.png" alt="">머니퍼즐 노래방 · 관리</h1>
+  <div class="sub">karaoke.moneypuzzle.co.kr · 주식회사 부만</div>
+  <div id="gate" class="card">
+    <b>관리자 로그인</b>
+    <div class="row" style="margin-top:8px"><input type="password" id="pw" autocomplete="current-password" placeholder="노래방 관리자 비밀번호" onkeydown="if(event.key==='Enter')login()"><button onclick="login()">들어가기</button></div>
+    <div class="msg" id="gmsg">5번 틀리면 15분 동안 잠깁니다. 로그인 기록(시각·성공/실패)이 남습니다.</div>
+    <div class="msg"><a href="../">← 노래방으로</a></div>
+  </div>
+  <div id="app" hidden>
+    <div class="row" style="justify-content:flex-end;margin-top:6px"><a class="sub" href="../" style="margin-right:auto">← 노래방으로</a><button class="g" onclick="logout()">로그아웃</button></div>
+    <div class="menu" id="menu"></div>
+    <div id="pane"></div>
+  </div>
+</div>
+<script>
+"use strict";
+var HUB="https://brief-live-hub.emhwang3.workers.dev";
+var PW=""; try{ PW=sessionStorage.getItem("mpkadm")||""; }catch(e){}   // 이 탭에만 (창 닫으면 지워짐)
+function $(i){ return document.getElementById(i); }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function won(n){ return Math.round(n||0).toLocaleString()+"원"; }
+function tile(v,l){ return '<div class="tile"><b>'+v+'</b><span>'+l+'</span></div>'; }
+function kday(ms){ return new Date((ms||Date.now())+9*3600e3).toISOString().slice(0,10); }
+function kdt(ms){ return ms?new Date(ms+9*3600e3).toISOString().slice(0,16).replace("T"," "):""; }
+function api(path,opt){ opt=opt||{}; opt.headers=Object.assign({"x-kadmin":encodeURIComponent(PW)},opt.body?{"Content-Type":"application/json"}:{}); opt.cache="no-store";
+  return fetch(HUB+path,opt).then(function(r){ return r.json().catch(function(){ return {ok:false,err:"http "+r.status}; }).then(function(j){ if(r.status===403&&j&&(j.err==="admin"||j.err==="kadmin")) throw new Error("admin"); if(r.status===429) throw new Error("locked"); return j; }); }); }
+function errTx(e){ var m=e&&e.message||String(e); return m==="admin"?"비밀번호가 맞지 않습니다.":m==="locked"?"5번 틀려 15분 동안 잠겼습니다. 잠시 뒤 다시 해 주세요.":m==="noinit"?"노래방 관리자 비밀번호가 아직 설정되지 않았습니다(배포 뒤 1회 설정).":"허브에 닿지 못했습니다 ("+esc(m)+")"; }
+function login(){ var v=$("pw").value; if(v) PW=v; if(!PW){ $("gmsg").textContent="비밀번호를 넣어 주세요."; return; } $("gmsg").textContent="확인 중…";
+  api("/kadm/login",{method:"POST",body:"{}"}).then(function(j){ if(!j.ok) throw new Error(j.err||"x");
+    try{ sessionStorage.setItem("mpkadm",PW); }catch(e){} $("pw").value=""; $("gate").hidden=true; $("app").hidden=false; menu(); show("login");
+  }).catch(function(e){ PW=""; try{ sessionStorage.removeItem("mpkadm"); }catch(x){} $("gmsg").innerHTML='<span class="err">'+errTx(e)+'</span>'; }); }
+function logout(){ PW=""; try{ sessionStorage.removeItem("mpkadm"); }catch(e){} location.reload(); }
+var MENU=[["login","로그인 MIS","계정 수·새 가입·최근 로그인"],["use","노래방 이용 MIS","곡별 재생·매출·협회 CSV · 사이트별"],["sale","곡 이용권 판매·잔액","주문(시험/실제)·계정별 남은 곡"],["refund","환불 도구","요청 → 자동 계산 → 환불 처리"],["price","묶음 가격표","1 · 3+1 · 5+2 · 10+5"],["adm","관리자 도구 MIS","로그인 기록·비밀번호 바꾸기"]];
+function menu(){ $("menu").innerHTML=MENU.map(function(m){ return '<button data-k="'+m[0]+'" onclick="show(this.dataset.k)"><b>'+esc(m[1])+'</b><small>'+esc(m[2])+'</small></button>'; }).join(""); }
+function show(k){ [].forEach.call($("menu").children,function(b){ b.classList.toggle("on",b.dataset.k===k); }); var P=$("pane"); P.innerHTML='<div class="card"><div class="msg">불러오는 중…</div></div>';
+  ({login:lgLoad,use:klLoad,sale:slLoad,refund:rfLoad,price:pcLoad,adm:adLoad})[k](); }
+function fail(e){ $("pane").innerHTML='<div class="card err">'+errTx(e)+'</div>'; if(e&&e.message==="admin") setTimeout(logout,1500); }
+
+// ── 로그인 MIS — 허브 /npg/kadmin/logins (노래방 사이트에서 로그인한 계정, 아이디는 가림) ──
+function lgLoad(){ api("/npg/kadmin/logins").then(function(j){ if(!j.ok) throw new Error(j.err);
+  var mx=Math.max.apply(null,[1].concat((j.days||[]).map(function(d){ return d.n||0; })));
+  $("pane").innerHTML='<div class="card"><b>로그인 MIS</b><div class="msg">노래방 사이트(karaoke.moneypuzzle.co.kr)에서 구글·애플로 로그인한 계정입니다. 투어앱에서만 로그인한 계정은 세지 않습니다. 아이디는 가려서 보입니다.</div>'
+   +'<div class="tiles">'+tile((j.tot||0).toLocaleString(),"노래방 로그인 계정")+tile(j.nw7||0,"새 가입 7일")+tile(j.nw30||0,"새 가입 30일")+tile(j.act7||0,"7일 안 로그인")+tile(j.act30||0,"30일 안 로그인")+'</div>'
+   +'<b style="font-size:14px">날짜별 (최근 60일)</b><div class="tw"><table><tr><th class="l">날짜</th><th>로그인 수</th><th>새 가입</th><th class="l"></th></tr>'
+   +((j.days||[]).map(function(d){ return '<tr><td class="l">'+esc(d.d)+'</td><td>'+(d.n||0)+'</td><td>'+(d.nw||0)+'</td><td class="l"><div class="bar" style="width:'+Math.round((d.n||0)/mx*160)+'px"></div></td></tr>'; }).join("")||'<tr><td class="l" colspan="4">아직 기록이 없습니다.</td></tr>')+'</table></div>'
+   +'<b style="font-size:14px;display:block;margin-top:12px">최근 로그인</b><div class="tw"><table><tr><th class="l">아이디(가림)</th><th class="l">방식</th><th>처음</th><th>마지막</th><th>횟수</th></tr>'
+   +((j.recent||[]).map(function(r){ return '<tr><td class="l">'+esc(r.id)+(r.own?' <span class="tag">사장님 기기</span>':'')+'</td><td class="l">'+(r.prov==="apple"?"애플":"구글")+'</td><td>'+kdt(r.c)+'</td><td>'+kdt(r.la)+'</td><td>'+(r.n||0)+'</td></tr>'; }).join("")||'<tr><td class="l" colspan="5">아직 없습니다.</td></tr>')+'</table></div></div>';
+ }).catch(fail); }
+
+// ── 노래방 이용 MIS — 투어앱 통계청 「노래방 이용 기록」과 같은 허브 /nkara/admin · 사이트별(navi/karaoke) ──
+var KLCO={tj:"TJ미디어",ky:"금영엔터테인먼트"}, KL=null;
+function klMon(){ return new Date(Date.now()+9*3600e3).toISOString().slice(0,7); }
+function klHms(s){ s=Math.round(s||0); var h=Math.floor(s/3600), m=Math.floor(s%3600/60), x=s%60; return (h?h+"시간 ":"")+(h||m?m+"분 ":"")+x+"초"; }
+var SITEN={all:"전체",navi:"투어앱",karaoke:"노래방 사이트"};
+function klLoad(){ $("pane").innerHTML='<div class="card"><div class="row"><b style="flex:1">노래방 이용 MIS</b><button class="g" onclick="klCsv(0)">협회 보고용 CSV</button><button class="g" onclick="klCsv(1)">원자료 CSV</button></div>'
+  +'<div class="msg">노래를 한 번 부를 때마다 한 줄 (시각·곡·회사·재생 시간·끝까지·나라·언어·가린 이용자 번호·재생 방식·결제 금액·사이트). 이름·이메일 없음. 5년 보관. 10초 미만은 「미리 듣기」.</div>'
+  +'<div class="row" style="margin-top:8px">월 <input type="month" id="klm" value="'+klMon()+'"> 사이트 <select id="kls"><option value="all">전체</option><option value="navi">투어앱</option><option value="karaoke">노래방 사이트</option></select><button onclick="klGet()">조회</button><label style="font-size:13px"><input type="checkbox" id="klx"> 시험 기록</label></div><div id="klo"></div></div>'; klGet(); }
+function klQ(raw){ return "/nkara/admin?m="+encodeURIComponent($("klm").value||klMon())+(raw?"&raw=1":"")+($("klx").checked?"&test=1":""); }
+function klSite(x){ return x.src==="karaoke"?"karaoke":"navi"; }   // 10-30 전 기록엔 src 가 없다 = 투어앱
+// 사이트를 고르면 원자료로 곡별 합계를 다시 낸다 (허브 월 합계는 전체 기준)
+function klAgg(items,site){ var S={}, T={n:0,full:0,sec:0,won:0,pv:0,yt:0,u:0}, U={};
+  items.forEach(function(x){ if(site!=="all"&&klSite(x)!==site) return; var k=x.ch+"_"+x.id, s=S[k]||(S[k]={id:x.id,ch:x.ch,t:x.t,a:x.a,no:x.no,lyr:x.lyr,cmp:x.cmp,n:0,full:0,sec:0,won:0,pv:0,yt:0,u:0,_u:{}});
+    [s,T].forEach(function(o){ o.n++; o.full+=x.full?1:0; o.sec+=x.sec||0; o.won+=x.won||0; o.pv+=x.pv?1:0; if(x.mode==="yt") o.yt++; });
+    if(!s._u[x.uh]){ s._u[x.uh]=1; s.u++; } if(!U[x.uh]){ U[x.uh]=1; T.u++; } });
+  var a=Object.keys(S).map(function(k){ return S[k]; }); a.sort(function(p,q){ return q.n-p.n||q.sec-p.sec; }); return {tot:T,songs:a}; }
+function klGet(){ var e=$("klo"), site=$("kls").value; e.innerHTML='<div class="msg">불러오는 중…</div>';
+  api(klQ(site!=="all")).then(function(j){ if(!j.ok) throw new Error(j.err); KL=j; var T=j.tot||{}, S=j.songs||[], nk=T.nk||0;
+    if(site!=="all"){ var g=klAgg(j.items||[],site); T=g.tot; S=g.songs; }
+    e.innerHTML='<div class="tiles">'+tile((T.n||0).toLocaleString(),"재생 수 · "+esc(SITEN[site]))+tile((T.full||0).toLocaleString(),"끝까지")+tile(esc(klHms(T.sec)),"총 재생 시간")+tile((T.u||0).toLocaleString(),"이용자 수")+tile((T.pv||0).toLocaleString(),"미리 듣기(10초 미만)")+tile((T.yt||0).toLocaleString(),"유튜브로 보냄")+tile(won(T.won),"매출")
+      +(site==="all"?tile(((T.n||0)-nk).toLocaleString()+" / "+nk.toLocaleString(),"투어앱 / 노래방 사이트"):"")+'</div>'
+     +(S.length?'<div class="tw"><table><tr><th class="l">제목</th><th class="l">가수</th><th class="l">회사</th><th>곡 번호</th><th>재생 수</th><th>끝까지</th><th>미리 듣기</th><th>총 시간</th><th>이용자 수</th><th>매출</th><th class="l">영상</th></tr>'
+       +S.map(function(x){ return '<tr><td class="l">'+esc(x.t)+'</td><td class="l">'+esc(x.a)+'</td><td class="l">'+esc(KLCO[x.ch]||x.ch)+'</td><td>'+esc(x.no||"")+'</td><td>'+(x.n||0)+'</td><td>'+(x.full||0)+'</td><td>'+(x.pv||0)+'</td><td>'+esc(klHms(x.sec))+'</td><td>'+(x.u||0)+'</td><td>'+won(x.won)+'</td><td class="l"><a href="https://www.youtube.com/watch?v='+encodeURIComponent(x.id)+'" target="_blank" rel="noopener">'+esc(x.id)+'</a></td></tr>'; }).join("")+'</table></div>'
+       :'<div class="msg">이 달 기록이 없습니다.</div>'); }).catch(function(x){ e.innerHTML='<div class="msg err">'+errTx(x)+'</div>'; }); }
+function klCsvDl(rows,name){ var t="﻿"+rows.map(function(r){ return r.map(function(v){ v=String(v==null?"":v); return /[",\r\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }).join(","); }).join("\r\n");
+  var a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([t],{type:"text/csv;charset=utf-8"})); a.download=name; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },1000); }
+function klCsv(raw){ var m=$("klm").value||klMon(), site=$("kls").value, sx=site==="all"?"":"_"+(site==="karaoke"?"노래방사이트":"투어앱");
+  api(klQ(raw||site!=="all")).then(function(j){ if(!j.ok) throw new Error(j.err);
+    if(!raw){ var g=site==="all"?{songs:j.songs||[],tot:j.tot||{}}:klAgg(j.items||[],site), r=[["월","제목","가수","반주 회사","곡 번호","유튜브 영상 id","작사","작곡","재생 수","끝까지 재생","미리 듣기(10초 미만)","유튜브로 보냄","총 재생 시간(초)","이용자 수","매출(원)"]];
+      g.songs.forEach(function(x){ r.push([m,x.t,x.a,KLCO[x.ch]||x.ch,x.no||"",x.id,x.lyr||"",x.cmp||"",x.n||0,x.full||0,x.pv||0,x.yt||0,x.sec||0,x.u||0,x.won||0]); });
+      var T=g.tot; r.push([m,"합계","","","","","","",T.n||0,T.full||0,T.pv||0,T.yt||0,T.sec||0,T.u||0,T.won||0]);
+      klCsvDl(r,"머니퍼즐_노래방_협회보고_"+m+sx+(j.test?"_시험":"")+".csv"); return; }
+    var r2=[["시각(KST)","사이트","곡 id(회사_영상)","곡 번호","제목","가수","반주 회사","유튜브 영상 id","원래 유튜브 제목","작사","작곡","이용자(가린 번호)","나라","앱 언어","재생 시간(초)","끝까지","미리 듣기","영상 길이(초)","마지막 위치(초)","결제 금액(원)","재생 방식","사장님 기기","마지막 기록"]];
+    (j.items||[]).forEach(function(x){ if(site!=="all"&&klSite(x)!==site) return; r2.push([x.at,SITEN[klSite(x)],x.ch+"_"+x.id,x.no||"",x.t,x.a,x.co||KLCO[x.ch]||x.ch,x.id,x.rt||"",x.lyr||"",x.cmp||"",x.uh,x.cc,x.l||"",x.sec||0,x.full?"예":"",x.pv?"예":"",x.dur||0,x.pos||0,x.won||0,x.mode==="yt"?"유튜브로 보냄":"앱 안 퍼가기",x.own?"예":"",x.last||""]); });
+    klCsvDl(r2,"머니퍼즐_노래방_원자료_"+m+sx+(j.test?"_시험":"")+".csv"); }).catch(function(e){ alert(errTx(e).replace(/<[^>]+>/g,"")); }); }
+
+// ── 곡 이용권 판매·잔액 — 허브 /shop/kadmin/orders ──
+var STN={test:"시험",pending:"결제 대기",paid:"결제 완료",confirmed:"확정",cancelled:"취소",refunded:"환불"};
+function slLoad(){ api("/shop/kadmin/orders").then(function(j){ if(!j.ok) throw new Error(j.err); var T=j.tot||{test:{},real:{}};
+  $("pane").innerHTML='<div class="card"><b>곡 이용권 판매</b><div class="msg">지금은 시험 결제(토스 시험 키)라 모든 주문이 「시험」이고 곡 수가 쌓이지 않습니다. 이름·이메일은 가려서 보입니다.</div>'
+   +'<div class="tiles">'+tile((T.real.n||0)+"건","실제 주문")+tile(won(T.real.won),"실제 매출")+tile((T.real.songs||0)+"곡","실제 판매 곡")+tile((T.test.n||0)+"건","시험 주문")+tile(won(T.test.won),"시험 금액")+'</div>'
+   +'<div class="tw"><table><tr><th class="l">주문번호</th><th>시각</th><th class="l">구분</th><th class="l">묶음</th><th>곡</th><th>금액</th><th class="l">구매자</th><th class="l">계정</th><th class="l">사이트</th><th class="l">환불</th></tr>'
+   +((j.items||[]).map(function(x){ return '<tr><td class="l">'+esc(x.oid)+'</td><td>'+esc(x.at)+'</td><td class="l">'+(x.test?'<span class="tag t">시험</span>':'<span class="tag">'+esc(STN[x.status]||x.status)+'</span>')+'</td><td class="l">'+esc(x.pk)+'</td><td>'+x.songs+'</td><td>'+won(x.amount)+'</td><td class="l">'+esc(x.name)+' '+esc(x.email)+'</td><td class="l">'+esc(x.u)+'</td><td class="l">'+(x.src==="karaoke"?'<span class="tag k">노래방 사이트</span>':'투어앱')+'</td><td class="l">'+(x.refund?won(x.refund.amount)+(x.refund.test?' (시험)':''):'')+'</td></tr>'; }).join("")||'<tr><td class="l" colspan="10">아직 주문이 없습니다.</td></tr>')+'</table></div></div>'
+   +'<div class="card"><b>계정별 남은 곡</b><div class="msg">진짜 결제가 붙으면 결제 승인 때 쌓이고, 정식 반주 곡을 부를 때 1곡씩 줄어듭니다. 계정은 가린 번호(앞 8자리).</div><div class="tw"><table><tr><th class="l">계정</th><th>남은 곡</th><th>마지막 변경</th></tr>'
+   +((j.bal||[]).map(function(b){ return '<tr><td class="l">'+esc(b.u)+'</td><td>'+b.left+'</td><td>'+esc(b.at||"")+'</td></tr>'; }).join("")||'<tr><td class="l" colspan="3">아직 남은 곡이 있는 계정이 없습니다.</td></tr>')+'</table></div></div>';
+ }).catch(fail); }
+
+// ── 환불 도구 — 허브 /shop/kadmin/refunds · /shop/kadmin/refund ──
+var RFS={req:"요청",refunded:"환불 처리",rejected:"거절"};
+function rfLoad(){ api("/shop/kadmin/refunds").then(function(j){ if(!j.ok) throw new Error(j.err);
+  $("pane").innerHTML='<div class="card"><b>환불 도구</b><div class="msg">환불 규정: 구매 7일 이내 = 결제 금액 − 쓴 곡 × 1,000원 · 7일 뒤 = 그 금액에서 수수료 10% 더 뺌 · 서비스 곡은 환불 없음 · 10원 미만 버림 · 0원 이하면 없음 · 1년 지난 주문은 보관 끝.<br>쓴 곡은 먼저 산 주문부터 채웁니다. 결제 연결 전이라 「환불 처리」는 <b>기록·상태만</b> 바꾸고 카드 취소는 하지 않습니다.</div>'
+   +((j.items||[]).map(function(q){ var c=q.calc;
+     return '<div class="inv"><div class="row"><b style="flex:1">'+esc(q.id)+'</b><span class="tag'+(q.st==="req"?" k":"")+'">'+esc(RFS[q.st]||q.st)+'</span>'+(q.test||(c&&c.testOnly)?' <span class="tag t">시험</span>':'')+'</div>'
+      +'<div class="msg">요청 '+esc(q.at)+' · 계정 '+esc(q.u)+' · 앱이 본 남은 곡 '+(q.left||0)+'곡 · '+(q.src==="karaoke"?"노래방 사이트":"투어앱")+'</div>'
+      +(c?'<div class="tw"><table><tr><th class="l">주문</th><th>결제</th><th>곡</th><th>쓴 곡</th><th>지난 날</th><th class="l">구분</th><th>환불</th></tr>'+c.rows.map(function(r){ return '<tr><td class="l">'+esc(r.oid)+'</td><td>'+won(r.amount)+'</td><td>'+r.songs+'</td><td>'+r.used+'</td><td>'+r.days+'일</td><td class="l">'+(r.exp?"1년 지남":r.late?"7일 지남(−10%)":"7일 이내")+(r.test?' · 시험':'')+'</td><td>'+won(r.refund)+'</td></tr>'; }).join("")+'</table></div>'
+        +'<div class="row" style="margin-top:6px"><b>환불 금액 '+won(c.total)+'</b><span class="sub">(산 곡 '+c.songs+' · 쓴 곡 '+c.used+(c.testOnly?' · 시험 주문뿐이라 쓴 곡 0으로 계산':'')+')</span></div>'
+        +'<div class="row" style="margin-top:6px">쓴 곡 고치기 <input type="number" min="0" id="u_'+esc(q.id)+'" placeholder="'+c.used+'" style="width:80px"> 메모 <input type="text" id="m_'+esc(q.id)+'" maxlength="200" style="flex:1;min-width:120px"><button data-id="'+esc(q.id)+'" onclick="rfDo(this.dataset.id,\'done\')">환불 처리</button><button class="g" data-id="'+esc(q.id)+'" onclick="rfDo(this.dataset.id,\'reject\')">거절</button></div>'
+       :'<div class="msg">'+(q.st==="refunded"?'처리 금액 '+won(q.amount)+' · 쓴 곡 '+(q.used||0)+' · 카드 취소: 아직(결제 연결 전)':'')+(q.memo?' · 메모: '+esc(q.memo):'')+'</div>')+'</div>'; }).join("")||'<div class="msg">환불 요청이 없습니다. (손님이 노래방 곡 이용권 창의 「남은 곡 환불 요청」을 누르면 여기에 쌓입니다.)</div>')+'</div>';
+ }).catch(fail); }
+function rfDo(id,act){ var u=$("u_"+id), m=$("m_"+id), used=u&&u.value!==""?+u.value:"";
+  if(!confirm(act==="done"?"이 요청을 환불 처리할까요? (지금은 기록·상태만 바뀌고 카드 취소는 하지 않습니다)":"이 요청을 거절할까요?")) return;
+  api("/shop/kadmin/refund",{method:"POST",body:JSON.stringify({id:id,act:act,used:used,memo:m?m.value:""})}).then(function(j){ if(!j.ok) throw new Error(j.err); alert(act==="done"?"환불 처리 기록: "+won(j.amount)+(j.test?" (시험)":""):"거절했습니다."); rfLoad(); }).catch(function(e){ alert(errTx(e).replace(/<[^>]+>/g,"")); }); }
+
+// ── 묶음 가격표 — 투어앱 관리자와 같은 허브 /shop/admin/karc ──
+var PK=null;
+function pcLoad(){ api("/shop/admin/karc").then(function(k){ if(!k.ok) throw new Error(k.err); PK=k;
+  $("pane").innerHTML='<div class="card"><b>노래방 곡 이용권 묶음</b> <span class="sub">(시험 결제 · 곡 수 적립 없음'+(k.at?' · 마지막 수정 '+esc(k.at):' · 기본값')+')</span>'
+   +'<div class="msg">산 곡 + 서비스 곡 = 받는 곡. 금액은 10원 단위. 투어앱·노래방 사이트의 「곡 이용권」 판매 칸과 허브 주문 금액이 이 표를 씁니다(투어앱 통계청 「상품 관리」와 같은 표).</div>'
+   +'<div class="tw"><table style="margin-top:6px"><tr><th>칸</th><th>산 곡</th><th>서비스 곡</th><th>금액(원)</th><th>받는 곡 · 곡당</th></tr>'
+   +k.packs.map(function(x,i){ return '<tr><td>'+(i+1)+'</td><td><input type="number" id="kcN'+i+'" min="1" max="200" value="'+x.n+'" style="width:64px" oninput="pcCalc()"></td><td><input type="number" id="kcB'+i+'" min="0" max="200" value="'+x.b+'" style="width:64px" oninput="pcCalc()"></td><td><input type="number" id="kcP'+i+'" min="100" step="10" value="'+x.p+'" style="width:96px" oninput="pcCalc()"></td><td id="kcS'+i+'"></td></tr>'; }).join("")
+   +'</table></div><div class="row" style="margin-top:8px"><button onclick="pcSave()">가격표 저장</button><button class="g" onclick="pcReset()">기본값으로 (1 · 3+1 · 5+2 · 10+5)</button></div></div>'; pcCalc(); }).catch(fail); }
+function pcCalc(){ for(var i=0;i<4;i++){ var n=+(($("kcN"+i)||{}).value||0), b=+(($("kcB"+i)||{}).value||0), p=+(($("kcP"+i)||{}).value||0), el=$("kcS"+i); if(el) el.textContent=(n+b)+"곡 · 곡당 "+(n+b?Math.round(p/(n+b)).toLocaleString():"-")+"원"; } }
+function pcSave(){ var ps=[]; for(var i=0;i<4;i++) ps.push({n:parseInt($("kcN"+i).value,10),b:parseInt($("kcB"+i).value,10),p:parseInt($("kcP"+i).value,10)});
+  if(!confirm("노래방 곡 이용권 가격표를 이렇게 바꿀까요? — "+ps.map(function(x){ return x.n+(x.b?"+"+x.b:"")+"곡 "+won(x.p); }).join(" · ")+"\n(카드사 심사 중이면 가격 변경이 재심사 사유가 될 수 있습니다)")) return;
+  api("/shop/admin/karc",{method:"POST",body:JSON.stringify({packs:ps})}).then(function(j){ if(j&&j.ok){ alert("저장했습니다."); pcLoad(); } else alert("저장하지 못했습니다 ("+((j&&j.err)||"")+") — 곡 1~200, 서비스 0~200, 금액 100원 이상 10원 단위"); }).catch(function(e){ alert(errTx(e).replace(/<[^>]+>/g,"")); }); }
+function pcReset(){ if(!confirm("기본값(1곡 1,000원 · 3+1 3,000원 · 5+2 5,000원 · 10+5 10,000원)으로 되돌릴까요?")) return;
+  api("/shop/admin/karc",{method:"POST",body:JSON.stringify({reset:1})}).then(function(j){ if(j&&j.ok) pcLoad(); else alert("되돌리지 못했습니다."); }).catch(function(e){ alert(errTx(e).replace(/<[^>]+>/g,"")); }); }
+
+// ── 관리자 도구 MIS — 허브 /kadm/log · 비밀번호 바꾸기 /kadminpw ──
+var WHY={login:"로그인",bad:"비밀번호 틀림",locked:"잠긴 동안 시도",noinit:"설정 전",init:"처음 설정",pwchange:"비밀번호 바꿈",reset:"비상 복구"};
+function adLoad(){ api("/kadm/log?n=300").then(function(j){ if(!j.ok) throw new Error(j.err); var it=j.items||[], lk=j.lock||{};
+  var ok=it.filter(function(x){ return x.why==="login"; }).length, bad=it.filter(function(x){ return !x.ok; }).length;
+  $("pane").innerHTML='<div class="card"><b>관리자 도구 MIS</b><div class="tiles">'+tile(ok,"로그인 성공(최근 300줄)")+tile(bad,"실패·잠김")+tile(lk.until>Date.now()?"잠김":"정상","지금 상태")+tile(esc(j.pwAt||"-"),"비밀번호 마지막 변경")+'</div>'
+   +'<div class="msg">로그인 성공·실패·잠금·비밀번호 바꿈이 남습니다. 접속 위치는 해시(가린 값)만 남깁니다. 최근 1,000줄 보관.</div>'
+   +'<div class="tw"><table><tr><th class="l">시각</th><th class="l">결과</th><th class="l">내용</th><th class="l">접속(가림)</th></tr>'
+   +(it.filter(function(x){ return x.why!=="check"; }).map(function(x){ return '<tr><td class="l">'+esc(x.at)+'</td><td class="l '+(x.ok?"ok":"err")+'">'+(x.ok?"성공":"실패")+(x.locked?" · 잠김":"")+'</td><td class="l">'+esc(WHY[x.why]||x.why)+'</td><td class="l">'+esc(x.ih)+'</td></tr>'; }).join("")||'<tr><td class="l" colspan="4">기록이 없습니다.</td></tr>')+'</table></div></div>'
+   +'<div class="card"><b>비밀번호 바꾸기</b><div class="msg">노래방 관리자 비밀번호만 바뀝니다(투어앱 통계청 비밀번호는 그대로). 10자 이상.</div>'
+   +'<div class="row" style="margin-top:8px"><input type="password" id="pc0" placeholder="지금 비밀번호" autocomplete="current-password"><input type="password" id="pc1" placeholder="새 비밀번호 (10자 이상)" autocomplete="new-password"><input type="password" id="pc2" placeholder="새 비밀번호 한 번 더" autocomplete="new-password"><button onclick="pwChange()">바꾸기</button></div><div class="msg" id="pcm"></div></div>';
+ }).catch(fail); }
+function pwChange(){ var a=$("pc0").value, b=$("pc1").value, c=$("pc2").value, m=$("pcm");
+  if(!a||!b){ m.textContent="칸을 채워 주세요."; return; } if(b!==c){ m.textContent="새 비밀번호 두 칸이 다릅니다."; return; } if([...b].length<10){ m.textContent="새 비밀번호는 10자 이상."; return; }
+  fetch(HUB+"/kadminpw",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({cur:a,"new":b}),cache:"no-store"}).then(function(r){ return r.json(); }).then(function(j){
+    if(j.ok){ PW=b; try{ sessionStorage.setItem("mpkadm",PW); }catch(e){} m.innerHTML='<span class="ok">바꿨습니다.</span>'; ["pc0","pc1","pc2"].forEach(function(i){ $(i).value=""; }); }
+    else m.innerHTML='<span class="err">'+(j.err==="weak"?"새 비밀번호가 약합니다(10자 이상).":j.err==="locked"?"잠겼습니다. 15분 뒤 다시.":"지금 비밀번호가 맞지 않습니다.")+'</span>'; }).catch(function(){ m.textContent="허브에 닿지 못했습니다."; }); }
+if(PW) login();
+</script>
+</body>
+</html>
