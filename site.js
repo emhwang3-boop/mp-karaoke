@@ -31,7 +31,7 @@ function deco(){ var b=document.getElementById("karBox"); if(!b) return; var hd=
   var t=hd.querySelector(".kttl");
   if(!t){ var d0=hd.firstElementChild; if(d0&&!d0.classList.contains("kx")) d0.classList.add("kttl"); t=d0;
     var lg=document.createElement("img"); lg.className="klogo"; lg.src="logo.png"; lg.alt="Money Puzzle Karaoke"; hd.insertBefore(lg,hd.firstChild); }
-  if(t) t.innerHTML='<b>Money Puzzle Karaoke</b><small>'+esc(L(TX.sub))+'</small>';
+  if(t) t.innerHTML='<b>Money Puzzle</b><small>StageSong</small>';   // 머리글 = Money Puzzle / StageSong (사장님 10-30 — 말줄임 없이, 금영 글자 뺌)
   var s=hd.querySelector(".ksite"); if(!s){ s=document.createElement("div"); s.className="ksite"; hd.appendChild(s); }
   s.innerHTML='<select aria-label="Language">'+["ko","en","ja","zhs","zht","es"].map(function(l){ return '<option value="'+l+'"'+(l===window.LANG?' selected':'')+'>'+esc(({ko:"한국어",en:"English",ja:"日本語",zhs:"简体中文",zht:"繁體中文",es:"Español"})[l])+'</option>'; }).join("")+'</select>'
     +'<button type="button" class="kshr" aria-label="'+esc(L(SH.btn))+'" title="'+esc(L(SH.btn))+'">'+SHI.other.replace('fill="#5b93ff"','fill="currentColor"')+'</button>'
