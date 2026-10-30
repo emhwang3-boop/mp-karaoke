@@ -171,7 +171,8 @@ function rfDo(id,act){ var u=$("u_"+id), m=$("m_"+id), used=u&&u.value!==""?+u.v
 // ── 포인트 (10-31) — 허브 GET /shop/kadmin/pt · POST /shop/kadmin/ptcfg · /shop/kadmin/ptrefund · /shop/kadmin/ptnotice
 //   환불은 요청만 쌓이고, 여기서 「환불 처리」를 눌러도 기록·상태만 바뀐다(카드 취소는 PG 연결 뒤 직접). 무료 P 는 처리 때 소멸
 var PTK={d7:"7일 이내 · 수수료 없음",fee:"7일 지남 · % 수수료",fix:"7일 지남 · 정액 공제",exp:"기간 만료 · 90%"}, PTS={req:"요청",refunded:"환불 처리",rejected:"거절"}, PTM={sent:"메일 보냄",fail:"메일 실패",nomail:"메일 없음(앱 안 알림만)",off:"메일 끔",test:"시험(메일 안 보냄)"};
-function ptLoad(){ api("/shop/kadmin/pt").then(function(j){ if(!j.ok) throw new Error(j.err); var c=j.cfg, T=j.tot||{};
+var PTN=4;   // 충전 묶음 수 (10-31 5,000P 추가 → 4)
+function ptLoad(){ api("/shop/kadmin/pt").then(function(j){ if(!j.ok) throw new Error(j.err); var c=j.cfg, T=j.tot||{}; PTN=j.packs.pt.length;
   $("pane").innerHTML='<div class="card"><b>포인트 지갑</b><div class="msg">1원 = 1P · 계정마다 지갑 하나(웹·앱 같은 지갑) · 유료 먼저 사용 · 덩어리마다 1년 · 7일 이내 미사용 유료 P 는 수수료 없이 전부 · 7일 뒤 10% 이내 · 만료 뒤에도 충전일부터 5년까지 90% · 무료 P 는 환불 없음(환불 처리 때 소멸).<br>'
    +'손님에게 '+(c.open?'<b>열림</b>':'<b>닫힘</b> (사장님 기기만)')+' · 시험 충전 '+(c.test?'허용':'끔')+' · 구글 구매 확인 '+(j.gplay?'준비됨':'<span class="err">서비스 계정 없음</span>')+' · 구글 환불 알림 '+(j.rtdn?'준비됨':'<span class="err">키 없음</span>')+' · 이니시스 '+(j.inicis?'준비됨':'<span class="err">계약 전</span>')+' · 알림 메일 키 '+(j.mailKey?'있음':'없음')+'</div>'
    +'<div class="tiles">'+tile(T.n||0,"지갑 수")+tile((T.paid||0).toLocaleString()+"P","유료 잔여")+tile((T.free||0).toLocaleString()+"P","무료 잔여")+tile((T.frz||0).toLocaleString()+"P","환불 요청 중")+tile((T.tpaid||0).toLocaleString()+"P","그중 시험 유료")+tile((T.debt||0).toLocaleString()+"P","스토어 환불 부족분")+'</div></div>'
@@ -191,7 +192,7 @@ function ptLoad(){ api("/shop/kadmin/pt").then(function(j){ if(!j.ok) throw new 
    +'<div class="card"><b>계정별 지갑</b><div class="msg">계정은 가린 번호(앞 8자리).</div><div class="tw"><table><tr><th class="l">계정</th><th>유료</th><th>무료</th><th>요청 중</th><th>기간 만료</th><th>시험 유료</th><th>부족분</th><th>마지막</th></tr>'
    +((j.wallets||[]).map(function(w){ return '<tr><td class="l">'+esc(w.u)+'</td><td>'+w.paid.toLocaleString()+'</td><td>'+w.free.toLocaleString()+'</td><td>'+w.frz.toLocaleString()+'</td><td>'+(w.expd||0).toLocaleString()+'</td><td>'+w.tpaid.toLocaleString()+'</td><td>'+(w.debt||0).toLocaleString()+'</td><td>'+kdt(w.last)+'</td></tr>'; }).join("")||'<tr><td class="l" colspan="8">아직 지갑이 없습니다.</td></tr>')+'</table></div></div>';
  }).catch(fail); }
-function ptSave(){ var b=[0,1,2].map(function(i){ return parseInt($("ptB"+i).value,10)||0; }), f=Number($("ptF").value)/100, x=parseInt($("ptX").value,10)||0;
+function ptSave(){ var b=Array.apply(null,{length:PTN}).map(function(_,i){ return i; }).map(function(i){ return parseInt($("ptB"+i).value,10)||0; }), f=Number($("ptF").value)/100, x=parseInt($("ptX").value,10)||0;
   if(!(f>=0&&f<=0.1)){ alert("수수료는 0~10% 입니다 (「10% 이내」)."); return; } if(!(x>=0&&x<=10000)){ alert("정액 공제는 0~10,000원 입니다."); return; }
   if(!confirm("포인트 설정을 저장할까요?\n무료 P "+b.map(function(v){ return v.toLocaleString(); }).join(" / ")+" · 수수료 "+Math.round(f*1000)/10+"%"+(x?" · 정액 "+x.toLocaleString()+"원":"")+" · 손님에게 "+($("ptO").checked?"열기":"닫기"))) return;
   api("/shop/kadmin/ptcfg",{method:"POST",body:JSON.stringify({bonus:b,fee:f,fix:x,open:$("ptO").checked?1:0,test:$("ptT").checked?1:0,mail:$("ptM").checked?1:0})}).then(function(j){ if(!j.ok) throw new Error(j.err); alert("저장했습니다."); ptLoad(); }).catch(function(e){ alert(errTx(e).replace(/<[^>]+>/g,"")); }); }
