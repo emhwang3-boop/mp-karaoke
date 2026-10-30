@@ -57,18 +57,21 @@ var SH={hd:{ko:"이 앱 공유하기",en:"Share this app",ja:"このアプリを
  kakao:{ko:"카카오톡",en:"KakaoTalk",ja:"カカオトーク",zhs:"KakaoTalk",zht:"KakaoTalk",es:"KakaoTalk"},
  copy:{ko:"링크 복사",en:"Copy link",ja:"リンクをコピー",zhs:"复制链接",zht:"複製連結",es:"Copiar enlace"},
  other:{ko:"다른 앱으로",en:"Other apps",ja:"他のアプリ",zhs:"其他应用",zht:"其他應用",es:"Otras apps"},
+ kinst:{"ko": "앱 설치", "en": "Install app", "ja": "アプリを入れる", "zhs": "安装应用", "zht": "安裝應用", "es": "Instalar app"},
+ kopen:{"ko": "노래방 열기", "en": "Open karaoke", "ja": "カラオケを開く", "zhs": "打开练歌房", "zht": "開啟練歌房", "es": "Abrir karaoke"},
+ kdesc:{"ko": "금영 노래방 공식 영상으로 바로 부르는 온라인 노래방", "en": "Sing right away with official KY karaoke videos", "ja": "KY公式カラオケ動画ですぐ歌えるオンラインカラオケ", "zhs": "用金永(KY)官方卡拉OK视频马上开唱", "zht": "用金永(KY)官方卡拉OK影片馬上開唱", "es": "Canta al instante con vídeos oficiales de karaoke KY"},
  copied:{ko:"링크를 복사했습니다:",en:"Link copied:",ja:"リンクをコピーしました:",zhs:"已复制链接:",zht:"已複製連結:",es:"Enlace copiado:"}};
 function shareOpen(){ try{ ntap("_app","share"); }catch(e){}
-  var u="https://karaoke.moneypuzzle.co.kr/", txt=window.LANG==="ko"?"머니퍼즐 노래방 · Money Puzzle Karaoke":"Money Puzzle Karaoke · 머니퍼즐 노래방", e=encodeURIComponent;
+  var u="https://karaoke.moneypuzzle.co.kr/", iu=u+"?install=1", txt=window.LANG==="ko"?"머니퍼즐 노래방 · Money Puzzle Karaoke":"Money Puzzle Karaoke · 머니퍼즐 노래방", e=encodeURIComponent;
   var it=[["X",SHI.x,"https://twitter.com/intent/tweet?text="+e(txt)+"&url="+e(u)],
-    [L(SH.sms),SHI.sms,"sms:?&body="+e(txt+" "+u)],
-    [L(SH.tg),SHI.tg,"https://t.me/share/url?url="+e(u)+"&text="+e(txt)],
+    [L(SH.sms),SHI.sms,"sms:?&body="+e(txt+" "+u+"\n"+L(SH.kinst)+": "+iu)],
+    [L(SH.tg),SHI.tg,"https://t.me/share/url?url="+e(u)+"&text="+e(txt+"\n"+L(SH.kinst)+": "+iu)],
     ["LINE",SHI.line,"https://social-plugins.line.me/lineit/share?url="+e(u)],
     [L(SH.fb),SHI.fb,"https://www.facebook.com/sharer/sharer.php?u="+e(u)],
-    [L(SH.band),SHI.band,"https://band.us/plugin/share?body="+e(txt+"\n"+u)+"&route="+e(u)],
-    ["WhatsApp",SHI.wa,"https://api.whatsapp.com/send?text="+e(txt+" "+u)],
-    [L(SH.mail),SHI.mail,"mailto:?subject="+e(txt)+"&body="+e(u)],
-    [L(SH.kakao),SHI.kakao,"#share"],[L(SH.copy),SHI.copy,"#copy"]];
+    [L(SH.band),SHI.band,"https://band.us/plugin/share?body="+e(txt+"\n"+u+"\n"+L(SH.kinst)+": "+iu)+"&route="+e(u)],
+    ["WhatsApp",SHI.wa,"https://api.whatsapp.com/send?text="+e(txt+" "+u+"\n"+L(SH.kinst)+": "+iu)],
+    [L(SH.mail),SHI.mail,"mailto:?subject="+e(txt)+"&body="+e(u+"\n"+L(SH.kinst)+": "+iu)],
+    [L(SH.kakao),SHI.kakao,"#kakao"],[L(SH.copy),SHI.copy,"#copy"]];
   if(navigator.share) it.push([L(SH.other),SHI.other,"#share"]);
   var o=document.getElementById("karShr"); if(o) o.remove(); o=document.createElement("div"); o.id="karShr";
   o.innerHTML='<div class="shin"><div class="shhd">'+esc(L(SH.hd))+'</div><div class="shgrid">'+it.map(function(a){ var h=a[2];
@@ -76,7 +79,11 @@ function shareOpen(){ try{ ntap("_app","share"); }catch(e){}
       return '<a href="'+esc(h)+'"'+(/^(sms|mailto):/.test(h)?'':' target="_blank" rel="noopener"')+'>'+a[1]+' '+esc(a[0])+'</a>'; }).join("")+'</div><div class="shmsg"></div></div>';
   document.body.appendChild(o);
   o.onclick=function(ev){ if(ev.target===o){ o.remove(); return; } var b=ev.target.closest&&ev.target.closest("button[data-a]"); if(!b) return; var m=o.querySelector(".shmsg");
-    if(b.getAttribute("data-a")==="share"&&navigator.share){ navigator.share({title:txt,text:txt,url:u}).catch(function(){}); return; }   // 카카오톡·다른 앱으로 — 폰 공유창, 안 되면 링크 복사
+    if(b.getAttribute("data-a")==="kakao"){   // 카카오 「친구에게 보내기」 — 받은 카톡에 「노래방 열기」·「앱 설치」 단추 (10-30)
+      try{ if(!window.Kakao) throw 0; if(!Kakao.isInitialized()) Kakao.init("90a47ca48c2a967dd4d14b3b48de2e3b");
+        Kakao.Share.sendDefault({objectType:"feed",content:{title:"머니퍼즐 노래방 · Money Puzzle Karaoke",description:L(SH.kdesc),imageUrl:"https://karaoke.moneypuzzle.co.kr/icon-512.png",link:{webUrl:u,mobileWebUrl:u}},buttons:[{title:L(SH.kopen),link:{webUrl:u,mobileWebUrl:u}},{title:L(SH.kinst),link:{webUrl:iu,mobileWebUrl:iu}}]}); return; }
+      catch(x){ if(navigator.share){ navigator.share({title:txt,text:txt+"\n"+L(SH.kinst)+": "+iu,url:u}).catch(function(){}); return; } } }
+    if(b.getAttribute("data-a")==="share"&&navigator.share){ navigator.share({title:txt,text:txt+"\n"+L(SH.kinst)+": "+iu,url:u}).catch(function(){}); return; }   // 카카오톡·다른 앱으로 — 폰 공유창, 안 되면 링크 복사
     try{ navigator.clipboard.writeText(u).then(function(){ m.textContent=L(SH.copied)+" "+u; },function(){ m.textContent=u; }); }catch(x){ m.textContent=u; } }; }
 function reopen(){ var b=document.getElementById("karBox"), keepPay=b&&b.querySelector(".kpm"); if(keepPay){ deco(); return; }   // 결제 창이 열려 있으면 그 창은 karaoke.js 가 그 언어로 다시 그린다
   if(window.karClose) karClose(); if(window.karOpen) karOpen("site"); }
@@ -89,5 +96,14 @@ if(/[?&]karres=/.test(location.search)) setTimeout(function(){ var pre=document.
 else if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",start); else start();
 // 노래방 닫기(뒤로가기 등)로 화면이 비면 다시 연다 — 이 사이트는 노래방뿐
 setInterval(function(){ if(!document.getElementById("karBox")&&!/[?&]karres=/.test(location.search)) start(); },1500);
+// 「앱 설치」 링크로 온 손님 — 안드로이드: 가운데 큰 「앱 설치」(브라우저 규칙상 한 번은 눌러야 함) · 아이폰: 홈 화면에 추가 안내 (투어앱과 같은 방식, 10-30)
+(function(){ var want=false; try{ want=sessionStorage.getItem("mpv_wantinst")==="1"; }catch(e){} if(!want||isApp()) return;
+  var done=function(){ try{ sessionStorage.removeItem("mpv_wantinst"); }catch(e){} };
+  if(isIOS()){ window.addEventListener("load",function(){ setTimeout(function(){ done(); instGo(); },1200); }); return; }
+  var shown=false, show=function(){ if(shown||!instEv) return; shown=true; done();
+    var o=document.createElement("div"); o.id="karInst";
+    o.innerHTML='<div><img src="logo.png" alt=""><div style="font-size:18px;font-weight:900;margin:10px 0 8px">Money Puzzle Karaoke<br>머니퍼즐 노래방</div><button type="button" class="ky" style="display:block;width:100%;background:#ffe066;color:#1a1300;font-size:18px">'+esc(L(TX.inst))+'</button><button type="button" class="kn" style="background:none;color:#cfc6e8;font-size:14px">'+esc(L(TX.ok))+'</button></div>';
+    document.body.appendChild(o); o.querySelector(".ky").onclick=function(){ o.remove(); instGo(); }; o.querySelector(".kn").onclick=function(){ o.remove(); }; };
+  window.addEventListener("beforeinstallprompt",function(){ setTimeout(show,300); }); if(instEv) setTimeout(show,300); })();
 if("serviceWorker" in navigator) window.addEventListener("load",function(){ navigator.serviceWorker.register("sw.js").catch(function(){}); });
 })();
