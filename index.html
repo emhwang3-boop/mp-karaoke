@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>머니퍼즐 노래방 · Money Puzzle Karaoke</title>
+<meta name="description" content="머니퍼즐 노래방(Money Puzzle Karaoke) — TJ·금영 공식 유튜브 채널 노래방 영상과 곡 이용권. 한국어·English·日本語·简体中文·繁體中文·Español">
+<meta name="theme-color" content="#12081f">
+<meta property="og:title" content="머니퍼즐 노래방 · Money Puzzle Karaoke">
+<meta property="og:description" content="TJ·금영 공식 유튜브 노래방 영상 · 곡 이용권 — 6개 언어">
+<meta property="og:image" content="https://karaoke.moneypuzzle.co.kr/icon-512.png">
+<meta property="og:url" content="https://karaoke.moneypuzzle.co.kr/">
+<link rel="icon" href="favicon.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="머니퍼즐 노래방">
+<style>
+/* 머니퍼즐 노래방 전용 사이트 (karaoke.moneypuzzle.co.kr, 2026-10-30) — 화면 본체는 투어앱과 같은 karaoke.js(#karBox), 이 파일은 머리글·언어·설치·로그인만 잇는다 */
+:root{--bg:#12081f;--card:#fff;--ink:#111827;--sub:#5b6474;--line:#e6e9ef}
+html,body{margin:0;background:#05030a;color:#f5eaff;font-family:system-ui,-apple-system,'Segoe UI',Roboto,'Noto Sans KR','Hiragino Sans','PingFang SC','Microsoft YaHei',sans-serif}
+#pre{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:24px}
+#pre img{width:96px;height:96px;border-radius:22px;background:#fff}
+#pre h1{margin:0;font-size:22px}#pre p{margin:0;opacity:.75;font-size:14px}
+#karBox .khd .klogo{width:38px;height:38px;border-radius:10px;background:#fff;flex:0 0 auto;box-shadow:0 0 10px rgba(255,79,216,.45)}
+*,*::before,*::after{box-sizing:border-box}
+#karBox .kin{min-width:0}#karBox .khd{min-width:0}
+#karBox .khd .kttl{min-width:0;flex:1;overflow:hidden}
+#karBox .khd .kttl b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#karBox .khd .kttl small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#karBox .khd .kx{display:none}
+#karBox .ksite{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+#karBox .ksite select,#karBox .ksite button{border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.3);color:#fff;border-radius:999px;padding:6px 10px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:inherit}
+#karBox .ksite select option{color:#111}
+#karBox .ksite .kinst{background:#ffe066;color:#1a1300;border-color:#ffe066}
+#karBox .kpay{position:relative;padding-right:46px}
+#karBox .kmic{position:absolute;right:-8px;top:-14px;height:66px;width:auto;user-select:none;-webkit-user-drag:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5))}
+@media (max-width:480px){#karBox .khd .kttl b{font-size:16px}#karBox .ksite select{max-width:88px;padding:5px 6px;font-size:12px}#karBox .ksite button{padding:5px 8px;font-size:12px}#karBox .kch a{font-size:12px;min-width:0}}
+@media (max-width:380px){#karBox .ksite .kinst{display:none}}
+@media (min-width:900px){#karBox .kin{max-width:860px}}
+#karInst{position:fixed;inset:0;z-index:2147483007;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:18px}
+#karInst>div{background:#1d1830;color:#f5eaff;border:1px solid rgba(255,255,255,.2);width:100%;max-width:380px;border-radius:18px;padding:22px 20px;text-align:center}
+#karInst img{width:64px;height:64px;border-radius:14px;background:#fff}
+#karInst button{margin-top:14px;border:0;border-radius:12px;padding:12px 18px;font-weight:900;font-size:15px;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="pre"><img src="logo.png" alt=""><h1>Money Puzzle Karaoke<br>머니퍼즐 노래방</h1><p>TJ · KY official karaoke · 6 languages</p>
+<noscript><p>JavaScript 가 필요합니다. / Please enable JavaScript.</p></noscript></div>
+<script>
+"use strict";
+var HUB="https://brief-live-hub.emhwang3.workers.dev";
+var KAR_SITE="karaoke";   // 투어앱(navi)과 구분 — 허브는 Origin 으로도 가른다
+var LANGS=["ko","en","ja","zhs","zht","es"], LBL={ko:"한국어",en:"English",ja:"日本語",zhs:"简体中文",zht:"繁體中文",es:"Español"};
+function langAuto(){ var n=String(navigator.language||""); if(/^ko/i.test(n)) return "ko"; if(/^ja/i.test(n)) return "ja"; if(/^es/i.test(n)) return "es"; if(/^zh/i.test(n)) return /hant|-tw|-hk|-mo/i.test(n)?"zht":"zhs"; return "en"; }
+var LANG="ko", _ql=((location.search.match(/[?&]lang=(ko|en|ja|zhs|zht|es)(?![A-Za-z])/i)||[])[1]||"").toLowerCase();
+try{ if(_ql) localStorage.setItem("mpv_lang",_ql); var _sv=localStorage.getItem("mpv_lang"); LANG=LANGS.indexOf(_sv)>=0?_sv:langAuto(); }catch(e){ LANG=_ql||langAuto(); }
+document.documentElement.lang={ko:"ko",en:"en",ja:"ja",zhs:"zh-Hans",zht:"zh-Hant",es:"es"}[LANG];
+function setLang(l){ if(LANGS.indexOf(l)<0) l="ko"; LANG=window.LANG=l; try{ localStorage.setItem("mpv_lang",l); }catch(e){} document.documentElement.lang={ko:"ko",en:"en",ja:"ja",zhs:"zh-Hans",zht:"zh-Hant",es:"es"}[l]; }
+// 누름 수 — 투어앱 ntap 과 같은 허브 /ntap (v="karaoke"). 사장님 기기(mp_owner)는 안 센다
+if(/[?&]ntt=1/.test(location.search)){ try{ localStorage.setItem("mpv_ntt","1"); }catch(z){} }
+function ntap(k,e){ try{ if(!k||!/^[A-Za-z0-9_-]{1,64}$/.test(k)) return; var x=0, own=false; try{ x=localStorage.getItem("mpv_ntt")?1:0; own=!!localStorage.getItem("mp_owner"); }catch(z){} if(own&&!x) return;
+  var b=JSON.stringify({k:k,v:"karaoke",l:LANG==="ko"?"ko":"en",l2:LANG,e:e,u:0,f:0,x:x});
+  if(navigator.sendBeacon&&navigator.sendBeacon(HUB+"/ntap",new Blob([b],{type:"text/plain"}))) return; fetch(HUB+"/ntap",{method:"POST",body:b,keepalive:true}).catch(function(){}); }catch(z){} }
+// 로그인 창(pg.js) — 노래방용 문구로 (배지·이벤트 이야기 없이)
+var PG_SITE={simple:true,aredir:location.origin+"/",W:{
+ title:{ko:"내 계정",en:"My account",ja:"マイアカウント",zhs:"我的账户",zht:"我的帳戶",es:"Mi cuenta"},
+ intro:{ko:"머니퍼즐 노래방 계정 — 산 곡 이용권은 로그인한 계정에 구매일부터 1년간 보관됩니다.",en:"Money Puzzle Karaoke account — song passes you buy are kept in your signed-in account for 1 year from purchase.",ja:"マネーパズル カラオケのアカウント — 購入した曲チケットはログインしたアカウントに購入日から1年間保管されます。",zhs:"Money Puzzle 练歌房账户 — 购买的点歌券自购买日起在登录账户中保留1年。",zht:"Money Puzzle 練歌房帳戶 — 購買的點歌券自購買日起在登入帳戶中保留1年。",es:"Cuenta de Money Puzzle Karaoke: los bonos que compres se guardan en tu cuenta durante 1 año desde la compra."},
+ ask:{ko:"구글 또는 애플 계정으로 로그인하세요.",en:"Sign in with your Google or Apple account.",ja:"GoogleまたはAppleアカウントでログインしてください。",zhs:"请使用Google或Apple账号登录。",zht:"請使用Google或Apple帳號登入。",es:"Inicia sesión con tu cuenta de Google o Apple."},
+ priv:{ko:"로그인하면 이름·이메일·구글 또는 애플 계정 식별값을 곡 이용권 보관·구매 확인과 부정 이용 방지 목적으로 보관하며, 마지막 이용 후 1년 뒤 삭제합니다(결제 기록은 법령에 따라 5년).",en:"When you sign in, we keep your name, email and Google or Apple account identifier to hold your song passes, confirm purchases and prevent misuse, and delete them 1 year after your last use (payment records: 5 years as required by law).",ja:"ログインすると、氏名・メールアドレス・GoogleまたはAppleアカウント識別子を曲チケットの保管・購入確認と不正利用防止のために保管し、最終利用から1年後に削除します（決済記録は法令により5年）。",zhs:"登录后，我们会为保存点歌券、确认购买及防止不当使用保存您的姓名、电子邮箱和Google或Apple账号标识，并在最后一次使用1年后删除（付款记录依法保存5年）。",zht:"登入後，我們會為保存點歌券、確認購買及防止不當使用保存您的姓名、電子郵件和Google或Apple帳號識別碼，並在最後一次使用1年後刪除（付款紀錄依法保存5年）。",es:"Al iniciar sesión guardamos tu nombre, correo e identificador de Google o Apple para conservar tus bonos, confirmar compras y prevenir abusos, y los eliminamos 1 año después de tu último uso (registros de pago: 5 años por ley)."}
+}};
+</script>
+<script src="karaoke.js?v=1030ks"></script>
+<script src="pg.js?v=1030ks"></script>
+<script src="site.js?v=1030ks"></script>
+</body>
+</html>
