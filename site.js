@@ -9,7 +9,7 @@ var TX={
  sub:{ko:"머니퍼즐 노래방 · 금영 공식 유튜브 노래방",en:"머니퍼즐 노래방 · KY official karaoke",ja:"머니퍼즐 노래방 · KY公式カラオケ",zhs:"머니퍼즐 노래방 · 金永(KY) 官方卡拉OK",zht:"머니퍼즐 노래방 · 金永(KY) 官方卡拉OK",es:"머니퍼즐 노래방 · Karaoke oficial KY"},
  inst:{ko:"앱 설치",en:"Install",ja:"アプリ",zhs:"安装",zht:"安裝",es:"Instalar"},
  acc:{ko:"내 계정",en:"Account",ja:"アカウント",zhs:"账户",zht:"帳戶",es:"Cuenta"},
- iosT:{ko:"1. 화면 아래(또는 위)의 「공유」 단추를 누르세요.<br>2. 「홈 화면에 추가」를 누르세요.<br>3. 「추가」를 누르면 홈 화면에 앱이 생깁니다.",en:"1. Tap the Share button at the bottom (or top) of the screen.<br>2. Tap “Add to Home Screen”.<br>3. Tap “Add” — the app appears on your home screen.",ja:"1. 画面下（または上）の「共有」ボタンを押します。<br>2.「ホーム画面に追加」を押します。<br>3.「追加」を押すとホーム画面にアプリができます。",zhs:"1. 点屏幕下方（或上方）的「分享」按钮。<br>2. 点「添加到主屏幕」。<br>3. 点「添加」，主屏幕上就会出现应用。",zht:"1. 點螢幕下方（或上方）的「分享」按鈕。<br>2. 點「加入主畫面」。<br>3. 點「新增」，主畫面上就會出現應用程式。",es:"1. Toca el botón Compartir abajo (o arriba).<br>2. Toca «Añadir a pantalla de inicio».<br>3. Toca «Añadir» y la app aparecerá en tu pantalla de inicio."},
+ iosT:{ko:"1. 화면 아래(또는 위)의 「공유」 버튼을 누르세요.<br>2. 「홈 화면에 추가」를 누르세요.<br>3. 「추가」를 누르면 홈 화면에 앱이 추가됩니다.",en:"1. Tap the Share button at the bottom (or top) of the screen.<br>2. Tap “Add to Home Screen”.<br>3. Tap “Add” — the app appears on your home screen.",ja:"1. 画面下（または上）の「共有」ボタンを押します。<br>2.「ホーム画面に追加」を押します。<br>3.「追加」を押すとホーム画面にアプリができます。",zhs:"1. 点屏幕下方（或上方）的「分享」按钮。<br>2. 点「添加到主屏幕」。<br>3. 点「添加」，主屏幕上就会出现应用。",zht:"1. 點螢幕下方（或上方）的「分享」按鈕。<br>2. 點「加入主畫面」。<br>3. 點「新增」，主畫面上就會出現應用程式。",es:"1. Toca el botón Compartir abajo (o arriba).<br>2. Toca «Añadir a pantalla de inicio».<br>3. Toca «Añadir» y la app aparecerá en tu pantalla de inicio."},
  dev:{ko:"개발 중",en:"Under development",ja:"開発中",zhs:"开发中",zht:"開發中",es:"En desarrollo"},
  ok:{ko:"닫기",en:"Close",ja:"閉じる",zhs:"关闭",zht:"關閉",es:"Cerrar"}
 };
@@ -57,10 +57,10 @@ new MutationObserver(function(ms){ for(var i=0;i<ms.length;i++) for(var j=0;j<ms
 //   손님 기기(mp_owner 없음)도 이 화면만은 열린다 · 허브 /kst/pv (열쇠 없이) — 전체 공개만 영상, 팔로워만·우리끼리는 잠김 안내
 var VQ=(location.search.match(/[?&]v=([0-9a-f]{16})(?![0-9a-z])/i)||[])[1]||""; VQ=VQ.toLowerCase();
 var VT={sing:{ko:"{n}님의 노래",en:"Sung by {n}",ja:"{n}さんの歌",zhs:"{n} 的演唱",zht:"{n} 的演唱",es:"Cantada por {n}"},
- try:{ko:"나도 불러 보기",en:"Sing it myself",ja:"自分も歌ってみる",zhs:"我也来唱",zht:"我也來唱",es:"Cantar yo también"},
- lkF:{ko:"팔로우하면 볼 수 있어요",en:"Follow to watch this video",ja:"フォローすると見られます",zhs:"关注后即可观看",zht:"追蹤後即可觀看",es:"Sigue a esta persona para verlo"},
- lkR:{ko:"우리끼리 방 사람만 볼 수 있어요",en:"Only members of this Just-us room can watch",ja:"「仲間だけ」ルームのメンバーだけが見られます",zhs:"仅小圈子房间成员可观看",zht:"僅小圈子房間成員可觀看",es:"Solo los miembros de esta sala «Solo nosotros» pueden verlo"},
- no:{ko:"영상을 찾을 수 없어요.",en:"This video isn't available.",ja:"動画が見つかりません。",zhs:"找不到该视频。",zht:"找不到該影片。",es:"Este vídeo no está disponible."},
+ try:{ko:"나도 도전",en:"Sing it myself",ja:"自分も歌ってみる",zhs:"我也来唱",zht:"我也來唱",es:"Cantar yo también"},
+ lkF:{ko:"팔로우하면 시청할 수 있어요",en:"Follow to watch this video",ja:"フォローすると見られます",zhs:"关注后即可观看",zht:"追蹤後即可觀看",es:"Sigue a esta persona para verlo"},
+ lkR:{ko:"우리끼리 방 멤버만 시청할 수 있어요",en:"Only members of this Just-us room can watch",ja:"「仲間だけ」ルームのメンバーだけが見られます",zhs:"仅小圈子房间成员可观看",zht:"僅小圈子房間成員可觀看",es:"Solo los miembros de esta sala «Solo nosotros» pueden verlo"},
+ no:{ko:"해당 영상이 존재하지 않아요.",en:"This video isn't available.",ja:"動画が見つかりません。",zhs:"找不到该视频。",zht:"找不到該影片。",es:"Este vídeo no está disponible."},
  lo:{ko:"불러오는 중…",en:"Loading…",ja:"読み込み中…",zhs:"加载中…",zht:"載入中…",es:"Cargando…"},
  sc:{ko:"노래 점수",en:"Singing score",ja:"歌唱得点",zhs:"演唱得分",zht:"演唱得分",es:"Puntuación"},
  pt:{ko:"점",en:"pts",ja:"点",zhs:"分",zht:"分",es:"pts"}};
