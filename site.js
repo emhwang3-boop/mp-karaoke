@@ -106,8 +106,8 @@ function rPage(){ var pre=document.getElementById("pre"); if(pre) pre.style.disp
 // 노래방 화면이 생기면 보관한 토큰으로 한 번 입장 (사장님 기기만)
 var RJ=false; function rJoin(){ if(RJ||!rOwn()) return; var t=rTok(); if(!t||!window.karRoomJoin) return; var n=0;
   RJ=true; (function w(){ if(document.getElementById("karBox")){ setTimeout(function(){ window.karRoomJoin(t); },300); return; } if(++n<60) setTimeout(w,250); else RJ=false; })(); }
-var T0=Date.now(), PRE_MS=7000;   // 첫 화면 = 로고만 3초 → 로고+「Money Puzzle / StageSong」 4초 → 노래방 (사장님 10-30)
-setTimeout(function(){ var t=document.getElementById("preT"); if(t) t.style.visibility="visible"; },3000);
+var T0=Date.now(), PRE_MS=5000;   // 첫 화면 = 로고만 3초 → 로고+「Money Puzzle / StageSong」 4초 → 노래방 (사장님 10-30)
+setTimeout(function(){ var t=document.getElementById("preT"); if(t) t.style.visibility="visible"; },2000);
 function start(){ if(VQ||RP) return; if(RQ&&rOwn()) T0=0; var w=PRE_MS-(Date.now()-T0); if(w>0&&!document.getElementById("karBox")){ clearTimeout(start._t); start._t=setTimeout(start,w); return; }
   var pre=document.getElementById("pre"); if(pre) pre.style.display="none";
   if(!document.getElementById("karBox")&&window.karOpen) karOpen("site");
