@@ -10,6 +10,7 @@ var TX={
  inst:{ko:"앱 설치",en:"Install",ja:"アプリ",zhs:"安装",zht:"安裝",es:"Instalar"},
  acc:{ko:"내 계정",en:"Account",ja:"アカウント",zhs:"账户",zht:"帳戶",es:"Cuenta"},
  iosT:{ko:"1. 화면 아래(또는 위)의 「공유」 단추를 누르세요.<br>2. 「홈 화면에 추가」를 누르세요.<br>3. 「추가」를 누르면 홈 화면에 앱이 생깁니다.",en:"1. Tap the Share button at the bottom (or top) of the screen.<br>2. Tap “Add to Home Screen”.<br>3. Tap “Add” — the app appears on your home screen.",ja:"1. 画面下（または上）の「共有」ボタンを押します。<br>2.「ホーム画面に追加」を押します。<br>3.「追加」を押すとホーム画面にアプリができます。",zhs:"1. 点屏幕下方（或上方）的「分享」按钮。<br>2. 点「添加到主屏幕」。<br>3. 点「添加」，主屏幕上就会出现应用。",zht:"1. 點螢幕下方（或上方）的「分享」按鈕。<br>2. 點「加入主畫面」。<br>3. 點「新增」，主畫面上就會出現應用程式。",es:"1. Toca el botón Compartir abajo (o arriba).<br>2. Toca «Añadir a pantalla de inicio».<br>3. Toca «Añadir» y la app aparecerá en tu pantalla de inicio."},
+ dev:{ko:"개발 중",en:"Under development",ja:"開発中",zhs:"开发中",zht:"開發中",es:"En desarrollo"},
  ok:{ko:"닫기",en:"Close",ja:"閉じる",zhs:"关闭",zht:"關閉",es:"Cerrar"}
 };
 function L(o){ return o[window.LANG]||o.en; }
@@ -38,6 +39,8 @@ function deco(){ var b=document.getElementById("karBox"); if(!b) return; var hd=
   s.querySelector("select").onchange=function(){ window.setLang(this.value); reopen(); };
   s.querySelector(".kshr").onclick=shareOpen;
   var ib=s.querySelector(".kinst"); if(ib) ib.onclick=instGo;
+  // 「개발 중」 띠 — 영상 화면 오른쪽 위 모서리에 비스듬히 (사장님 10-30 「좀 가려도 돼」). 누름은 그대로 아래로 통과
+  var pl=b.querySelector(".kpl"); if(pl){ var dv=pl.querySelector(".kdev"); if(!dv){ dv=document.createElement("div"); dv.className="kdev"; pl.appendChild(dv); } dv.textContent=L(TX.dev); }
   // 반주기(곡 이용권 칸) 옆면에 걸린 마이크 — 손님에겐 장식. 누르면 관리자 로그인
   var pay=b.querySelector(".kpay");
   if(pay&&!pay.querySelector(".kmic")){ var m=document.createElement("img"); m.className="kmic"; m.src="img/mic_hook.png"; m.alt=""; m.setAttribute("aria-hidden","true"); m.draggable=false;
