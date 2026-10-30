@@ -106,20 +106,38 @@ function rPage(){ var pre=document.getElementById("pre"); if(pre) pre.style.disp
 // 노래방 화면이 생기면 보관한 토큰으로 한 번 입장 (사장님 기기만)
 var RJ=false; function rJoin(){ if(RJ||!rOwn()) return; var t=rTok(); if(!t||!window.karRoomJoin) return; var n=0;
   RJ=true; (function w(){ if(document.getElementById("karBox")){ setTimeout(function(){ window.karRoomJoin(t); },300); return; } if(++n<60) setTimeout(w,250); else RJ=false; })(); }
+// ── 챌린지 초대 ?chal=<id> · 릴레이 차례 알림 ?room=<rid> (사장님 10-31) — 사장님 기기(mp_owner) = 노래방 열고 그 챌린지·그 방 · 손님 기기 = 「곧 오픈 예정」 + 「앱 설치」(rinv 손님 화면과 같은 방식)
+var CT={hd:{ko:"StageSong 챌린지 초대",en:"StageSong challenge invitation",ja:"StageSongチャレンジへの招待",zhs:"StageSong 挑战邀请",zht:"StageSong 挑戰邀請",es:"Invitación a un reto de StageSong"},
+ rhd:{ko:"우리끼리 방 릴레이",en:"Just-us room relay",ja:"「仲間だけ」ルームのリレー",zhs:"小圈子房间接力",zht:"小圈子房間接力",es:"Relevo de la sala «Solo nosotros»"},
+ soon:{ko:"곧 오픈 예정 — 앱을 설치해 두시면 오픈 때 바로 참여할 수 있어요",en:"Opening soon — install the app now and you can join as soon as it opens",ja:"近日オープン — アプリを入れておけば、オープンと同時に参加できます",zhs:"即将开放 — 先安装应用，开放时即可直接参加",zht:"即將開放 — 先安裝應用程式，開放時即可直接參加",es:"Próximamente — instala la app y podrás participar en cuanto abra"}};
+var CQ=((location.search.match(/[?&]chal=([0-9a-f]{12})(?![0-9a-z])/i)||[])[1]||"").toLowerCase(), MQ=((location.search.match(/[?&]room=([0-9a-f]{12})(?![0-9a-z])/i)||[])[1]||"").toLowerCase();
+if(CQ||MQ){ try{ var cq2=location.search.slice(1).split("&").filter(function(x){ return !/^(chal|room)=/i.test(x); }).join("&"); history.replaceState(history.state,"",location.pathname+(cq2?"?"+cq2:"")+location.hash); }catch(e){} }
+var CP=!!((CQ||MQ)&&!rOwn()&&!VQ&&!RQ);   // 손님 기기 안내 화면이 떠 있는 동안 노래방을 열지 않는다
+function cPage(){ var pre=document.getElementById("pre"); if(pre) pre.style.display="none"; var o=document.getElementById("karV"); if(o) o.remove();
+  o=document.createElement("div"); o.id="karV"; document.body.appendChild(o);
+  o.innerHTML='<div class="vin"><div class="vhd"><img src="logo.png" alt=""><div><b>Money Puzzle</b><small>StageSong</small></div></div>'
+    +'<div class="vlk"><img src="img/kara/'+(CQ?"kst_chal":"kst_relay")+'.png" alt=""><p>'+esc(L(CQ?CT.hd:CT.rhd))+'</p><div class="vn">'+esc(L(CT.soon))+'</div></div>'
+    +'<div class="vbt">'+(isApp()?"":'<button type="button" class="vins">'+esc(L(TX.inst))+'</button>')+'<button type="button" class="vgo">'+esc(L(RT.kar))+'</button></div></div>';
+  var ib=o.querySelector(".vins"); if(ib) ib.onclick=function(){ try{ ntap("kara_site",CQ?"chal_inst":"room_inst"); }catch(e){} vInst(); };
+  o.querySelector(".vgo").onclick=function(){ try{ ntap("kara_site",CQ?"chal_kar":"room_kar"); }catch(e){} CP=false; o.remove(); T0=0; start(); };
+  try{ ntap("kara_site",CQ?"chal_open":"room_open"); }catch(e){} }
+var CJ=false; function cGo(){ if(CJ||!rOwn()||!(CQ||MQ)) return; var n=0; CJ=true;
+  (function w(){ if(document.getElementById("karBox")&&(CQ?window.karChal:window.karRoomOpen)){ setTimeout(function(){ if(CQ) window.karChal(CQ); else window.karRoomOpen(MQ); CQ=""; MQ=""; },300); return; } if(++n<60) setTimeout(w,250); else CJ=false; })(); }
 var T0=Date.now(), PRE_MS=5000;   // 첫 화면 = 로고만 3초 → 로고+「Money Puzzle / StageSong」 4초 → 노래방 (사장님 10-30)
 setTimeout(function(){ var t=document.getElementById("preT"); if(t) t.style.visibility="visible"; },2000);
-function start(){ if(VQ||RP) return; if(RQ&&rOwn()) T0=0; var w=PRE_MS-(Date.now()-T0); if(w>0&&!document.getElementById("karBox")){ clearTimeout(start._t); start._t=setTimeout(start,w); return; }
+function start(){ if(VQ||RP||CP) return; if((RQ||CQ||MQ)&&rOwn()) T0=0; var w=PRE_MS-(Date.now()-T0); if(w>0&&!document.getElementById("karBox")){ clearTimeout(start._t); start._t=setTimeout(start,w); return; }
   var pre=document.getElementById("pre"); if(pre) pre.style.display="none";
   if(!document.getElementById("karBox")&&window.karOpen) karOpen("site");
-  rJoin();
+  rJoin(); cGo();
   try{ ntap("kara_site","tap"); }catch(e){} }
 // karaoke.js 는 ?karres= (토스에서 돌아옴)이면 0.7초 뒤 스스로 연다 — 그때는 먼저 열지 않는다
 if(/[?&]karres=/.test(location.search)) setTimeout(function(){ var pre=document.getElementById("pre"); if(pre) pre.style.display="none"; if(!document.getElementById("karBox")) start(); },1500);
 else if(VQ){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",vPage); else vPage(); }
 else if(RP){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",rPage); else rPage(); }
+else if(CP){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",cPage); else cPage(); }
 else if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",start); else start();
 // 노래방 닫기(뒤로가기 등)로 화면이 비면 다시 연다 — 이 사이트는 노래방뿐
-setInterval(function(){ if(!VQ&&!RP&&!document.getElementById("karBox")&&!/[?&]karres=/.test(location.search)) start(); },1500);
+setInterval(function(){ if(!VQ&&!RP&&!CP&&!document.getElementById("karBox")&&!/[?&]karres=/.test(location.search)) start(); },1500);
 // 「앱 설치」 링크로 온 손님 — 안드로이드: 가운데 큰 「앱 설치」(브라우저 규칙상 한 번은 눌러야 함) · 아이폰: 홈 화면에 추가 안내 (투어앱과 같은 방식, 10-30)
 (function(){ var want=false; try{ want=sessionStorage.getItem("mpv_wantinst")==="1"; }catch(e){} if(!want||isApp()) return;
   var done=function(){ try{ sessionStorage.removeItem("mpv_wantinst"); }catch(e){} };
@@ -129,5 +147,12 @@ setInterval(function(){ if(!VQ&&!RP&&!document.getElementById("karBox")&&!/[?&]k
     o.innerHTML='<div><img src="logo.png" alt=""><div style="font-size:18px;font-weight:900;margin:10px 0 8px">Money Puzzle Karaoke<br>머니퍼즐 노래방</div><button type="button" class="ky" style="display:block;width:100%;background:#ffe066;color:#1a1300;font-size:18px">'+esc(L(TX.inst))+'</button><button type="button" class="kn" style="background:none;color:#cfc6e8;font-size:14px">'+esc(L(TX.ok))+'</button></div>';
     document.body.appendChild(o); o.querySelector(".ky").onclick=function(){ o.remove(); instGo(); }; o.querySelector(".kn").onclick=function(){ o.remove(); }; };
   window.addEventListener("beforeinstallprompt",function(){ setTimeout(show,300); }); if(instEv) setTimeout(show,300); })();
+// 방문자 수 (사장님 10-31, 투어앱과 같은 방식) — 세션마다 한 번 · 사장님 기기(mp_owner)는 안 센다(n=0) · 허브 /hc?s=kara (따로 된 칸) · 노래방 화면 맨 아래 회색 작은 글씨
+var VC=null, VCT={ko:"누적 방문자 {u}명 · 오늘 방문자 {t}명 · 오늘 방문 {d}회",en:"Total visitors {u} · Visitors today {t} · Visits today {d}",ja:"累計訪問者 {u}人 · 本日の訪問者 {t}人 · 本日の訪問 {d}回",zhs:"累计访客 {u}人 · 今日访客 {t}人 · 今日访问 {d}次",zht:"累計訪客 {u}人 · 今日訪客 {t}人 · 今日造訪 {d}次",es:"Visitantes totales {u} · Visitantes hoy {t} · Visitas hoy {d}"};
+window.KAR_VC=function(){ if(!VC) return ""; var f=function(x){ return Number(x||0).toLocaleString(); }; return L(VCT).replace("{u}",f(VC.uniq)).replace("{t}",f(VC.tuniq)).replace("{d}",f(VC.today)); };
+function vcPaint(){ [].forEach.call(document.querySelectorAll("#karBox .kvc"),function(e){ e.textContent=window.KAR_VC(); }); }
+(function(){ try{ var v=""; try{ v=localStorage.getItem("kara_vid")||""; if(!v){ v=Math.random().toString(36).slice(2)+Date.now().toString(36); localStorage.setItem("kara_vid",v); } }catch(x){}
+  var n="1"; try{ if(sessionStorage.getItem("kara_hit")) n="0"; else sessionStorage.setItem("kara_hit","1"); if(localStorage.getItem("mp_owner")) n="0"; }catch(x){}
+  fetch(HUB+"/hc?s=kara&n="+n+"&vid="+encodeURIComponent(v),{cache:"no-store"}).then(function(r){ return r.json(); }).then(function(j){ VC=j; vcPaint(); }).catch(function(){}); }catch(x){} })();
 if("serviceWorker" in navigator) window.addEventListener("load",function(){ navigator.serviceWorker.register("sw.js").catch(function(){}); });
 })();
