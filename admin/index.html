@@ -94,7 +94,7 @@ function lgLoad(){ api("/npg/kadmin/logins").then(function(j){ if(!j.ok) throw n
  }).catch(fail); }
 
 // ── 노래방 이용 MIS — 투어앱 통계청 「노래방 이용 기록」과 같은 허브 /nkara/admin · 사이트별(navi/karaoke) ──
-var KLCO={tj:"TJ미디어",ky:"금영엔터테인먼트"}, KL=null;
+var KLCO={ky:"금영엔터테인먼트"}, KL=null;
 function klMon(){ return new Date(Date.now()+9*3600e3).toISOString().slice(0,7); }
 function klHms(s){ s=Math.round(s||0); var h=Math.floor(s/3600), m=Math.floor(s%3600/60), x=s%60; return (h?h+"시간 ":"")+(h||m?m+"분 ":"")+x+"초"; }
 var SITEN={all:"전체",navi:"투어앱",karaoke:"노래방 사이트"};
