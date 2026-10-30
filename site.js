@@ -6,7 +6,7 @@
 (function(){
 "use strict";
 var TX={
- sub:{ko:"머니퍼즐 노래방 · TJ·금영 공식 유튜브 노래방",en:"머니퍼즐 노래방 · TJ & KY official karaoke",ja:"머니퍼즐 노래방 · TJ・KY公式カラオケ",zhs:"머니퍼즐 노래방 · TJ·KY 官方卡拉OK",zht:"머니퍼즐 노래방 · TJ·KY 官方卡拉OK",es:"머니퍼즐 노래방 · Karaoke oficial TJ y KY"},
+ sub:{ko:"머니퍼즐 노래방 · 금영 공식 유튜브 노래방",en:"머니퍼즐 노래방 · KY official karaoke",ja:"머니퍼즐 노래방 · KY公式カラオケ",zhs:"머니퍼즐 노래방 · 金永(KY) 官方卡拉OK",zht:"머니퍼즐 노래방 · 金永(KY) 官方卡拉OK",es:"머니퍼즐 노래방 · Karaoke oficial KY"},
  inst:{ko:"앱 설치",en:"Install",ja:"アプリ",zhs:"安装",zht:"安裝",es:"Instalar"},
  acc:{ko:"내 계정",en:"Account",ja:"アカウント",zhs:"账户",zht:"帳戶",es:"Cuenta"},
  iosT:{ko:"1. 화면 아래(또는 위)의 「공유」 단추를 누르세요.<br>2. 「홈 화면에 추가」를 누르세요.<br>3. 「추가」를 누르면 홈 화면에 앱이 생깁니다.",en:"1. Tap the Share button at the bottom (or top) of the screen.<br>2. Tap “Add to Home Screen”.<br>3. Tap “Add” — the app appears on your home screen.",ja:"1. 画面下（または上）の「共有」ボタンを押します。<br>2.「ホーム画面に追加」を押します。<br>3.「追加」を押すとホーム画面にアプリができます。",zhs:"1. 点屏幕下方（或上方）的「分享」按钮。<br>2. 点「添加到主屏幕」。<br>3. 点「添加」，主屏幕上就会出现应用。",zht:"1. 點螢幕下方（或上方）的「分享」按鈕。<br>2. 點「加入主畫面」。<br>3. 點「新增」，主畫面上就會出現應用程式。",es:"1. Toca el botón Compartir abajo (o arriba).<br>2. Toca «Añadir a pantalla de inicio».<br>3. Toca «Añadir» y la app aparecerá en tu pantalla de inicio."},
