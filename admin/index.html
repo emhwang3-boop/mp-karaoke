@@ -76,10 +76,10 @@ function login(){ var v=$("pw").value; if(v) PW=v; if(!PW){ $("gmsg").textConten
     try{ sessionStorage.setItem("mpkadm",PW); }catch(e){} $("pw").value=""; $("gate").hidden=true; $("app").hidden=false; menu(); show("login");
   }).catch(function(e){ PW=""; try{ sessionStorage.removeItem("mpkadm"); }catch(x){} $("gmsg").innerHTML='<span class="err">'+errTx(e)+'</span>'; }); }
 function logout(){ PW=""; try{ sessionStorage.removeItem("mpkadm"); }catch(e){} location.reload(); }
-var MENU=[["login","로그인 MIS","계정 수·새 가입·최근 로그인"],["use","노래방 이용 MIS","곡별 재생·매출·협회 CSV · 사이트별"],["sale","곡 이용권 판매·잔액","주문(시험/실제)·계정별 남은 곡"],["refund","환불 도구","요청 → 자동 계산 → 환불 처리"],["price","묶음 가격표","1 · 3+1 · 5+2 · 10+5"],["adm","관리자 도구 MIS","로그인 기록·비밀번호 바꾸기"]];
+var MENU=[["login","로그인 MIS","계정 수·새 가입·최근 로그인"],["use","노래방 이용 MIS","곡별 재생·매출·협회 CSV · 사이트별"],["sale","곡 이용권 판매·잔액","주문(시험/실제)·계정별 남은 곡"],["refund","환불 도구","요청 → 자동 계산 → 환불 처리"],["price","묶음 가격표","1 · 3+1 · 5+2 · 10+5"],["chal","챌린지","곡·기간·제목 등록 / 종료 · 지난 기록"],["visit","방문 MIS","누적·오늘 방문자 (노래방 사이트)"],["adm","관리자 도구 MIS","로그인 기록·비밀번호 바꾸기"]];
 function menu(){ $("menu").innerHTML=MENU.map(function(m){ return '<button data-k="'+m[0]+'" onclick="show(this.dataset.k)"><b>'+esc(m[1])+'</b><small>'+esc(m[2])+'</small></button>'; }).join(""); }
 function show(k){ [].forEach.call($("menu").children,function(b){ b.classList.toggle("on",b.dataset.k===k); }); var P=$("pane"); P.innerHTML='<div class="card"><div class="msg">불러오는 중…</div></div>';
-  ({login:lgLoad,use:klLoad,sale:slLoad,refund:rfLoad,price:pcLoad,adm:adLoad})[k](); }
+  ({login:lgLoad,use:klLoad,sale:slLoad,refund:rfLoad,price:pcLoad,chal:chLoad,visit:vsLoad,adm:adLoad})[k](); }
 function fail(e){ $("pane").innerHTML='<div class="card err">'+errTx(e)+'</div>'; if(e&&e.message==="admin") setTimeout(logout,1500); }
 
 // ── 로그인 MIS — 허브 /npg/kadmin/logins (노래방 사이트에서 로그인한 계정, 아이디는 가림) ──
@@ -170,6 +170,36 @@ function pcSave(){ var ps=[]; for(var i=0;i<4;i++) ps.push({n:parseInt($("kcN"+i
   api("/shop/admin/karc",{method:"POST",body:JSON.stringify({packs:ps})}).then(function(j){ if(j&&j.ok){ alert("저장했습니다."); pcLoad(); } else alert("저장하지 못했습니다 ("+((j&&j.err)||"")+") — 곡 1~200, 서비스 0~200, 금액 100원 이상 10원 단위"); }).catch(function(e){ alert(errTx(e).replace(/<[^>]+>/g,"")); }); }
 function pcReset(){ if(!confirm("기본값(1곡 1,000원 · 3+1 3,000원 · 5+2 5,000원 · 10+5 10,000원)으로 되돌릴까요?")) return;
   api("/shop/admin/karc",{method:"POST",body:JSON.stringify({reset:1})}).then(function(j){ if(j&&j.ok) pcLoad(); else alert("되돌리지 못했습니다."); }).catch(function(e){ alert(errTx(e).replace(/<[^>]+>/g,"")); }); }
+
+// ── 챌린지 (10-31) — 허브 GET/POST /kst/chal/admin · 곡은 금영 곡 검색(허브 /kara?q=)에서 고른다 · 동시에 1개, 새로 등록하면 앞 챌린지는 끝나고 기록으로
+var CHS=null, CHR=[];
+function chD(ms){ return ms?new Date(ms+9*3600e3).toISOString().slice(0,16).replace("T"," "):""; }
+function chRow(c,cur){ var now=Date.now(), st=c.end||now>=c.e?"종료":now<c.s?"시작 전":"진행 중"; return '<tr><td class="l">'+esc(c.ttl)+'</td><td class="l">'+esc(c.t)+' <a href="https://www.youtube.com/watch?v='+encodeURIComponent(c.sid)+'" target="_blank" rel="noopener" class="sub">'+esc(c.sid)+'</a></td><td>'+chD(c.s)+'</td><td>'+chD(c.e)+'</td><td>'+(c.n||0)+'</td><td class="l">'+(cur?'<span class="tag k">'+st+'</span>':st+(c.endAt?" · "+chD(c.endAt):""))+'</td></tr>'; }
+function chLoad(){ api("/kst/chal/admin").then(function(j){ if(!j.ok) throw new Error(j.err); var c=j.cur, now=new Date(Date.now()+9*3600e3).toISOString().slice(0,16);
+  $("pane").innerHTML='<div class="card"><b>지금 챌린지</b><div class="msg">손님 화면: 노래방 「챌린지」 단추(시험 기간은 사장님 기기만). 참여 = 그 곡으로 녹화해 전체 공개로 게시한 영상. 동시에 1개만 진행합니다.</div>'
+   +(c?'<div class="tw"><table><tr><th class="l">제목</th><th class="l">곡</th><th>시작</th><th>끝</th><th>참여</th><th class="l">상태</th></tr>'+chRow(c,1)+'</table></div><div class="row" style="margin-top:8px"><button class="r" onclick="chEnd()">이 챌린지 종료</button></div>':'<div class="msg">진행 중인 챌린지가 없습니다.</div>')+'</div>'
+   +'<div class="card"><b>새 챌린지 등록</b><div class="msg">지금 챌린지가 있으면 끝내고 기록으로 옮긴 뒤 새로 시작합니다.</div>'
+   +'<div class="row" style="margin-top:8px"><input type="text" id="chq" placeholder="곡 검색 (금영 · 곡명/가수)" style="flex:1;min-width:160px" onkeydown="if(event.key===\x27Enter\x27)chSearch()"><button class="g" onclick="chSearch()">검색</button></div><div id="chr" class="msg"></div>'
+   +'<div class="row" style="margin-top:8px">고른 곡 <b id="chsel" class="sub">(아직 없음)</b></div>'
+   +'<div class="row" style="margin-top:8px">제목 <input type="text" id="chttl" maxlength="40" value="이번 주 챌린지" style="flex:1;min-width:140px"></div>'
+   +'<div class="row" style="margin-top:8px">시작 <input type="datetime-local" id="chs" value="'+now+'"> 기간 <input type="number" id="chdays" min="1" max="60" value="7" style="width:70px">일</div>'
+   +'<div class="row" style="margin-top:10px"><button onclick="chNew()">등록</button></div><div class="msg" id="chm"></div></div>'
+   +'<div class="card"><b>지난 챌린지 (기록)</b><div class="tw"><table><tr><th class="l">제목</th><th class="l">곡</th><th>시작</th><th>끝</th><th>참여</th><th class="l">상태</th></tr>'+((j.hist||[]).map(function(h){ return chRow(h,0); }).join("")||'<tr><td class="l" colspan="6">아직 없습니다.</td></tr>')+'</table></div></div>';
+  CHS=null; }).catch(fail); }
+function chSearch(){ var q=($("chq").value||"").trim(), e=$("chr"); if(!q) return; e.textContent="찾는 중…";
+  fetch(HUB+"/kara?q="+encodeURIComponent(q),{cache:"no-store"}).then(function(r){ return r.json(); }).then(function(j){ CHR=((j&&j.ok&&j.items)||[]).filter(function(x){ return x.e!==0; }).slice(0,30);
+    e.innerHTML=CHR.length?CHR.map(function(x,i){ return '<label style="display:block;padding:4px 0"><input type="radio" name="chpick" onchange="chPick('+i+')"> '+esc(x.t)+'</label>'; }).join(""):"검색 결과가 없습니다."; }).catch(function(){ e.textContent="허브에 닿지 못했습니다."; }); }
+function chPick(i){ CHS=CHR[i]||null; $("chsel").textContent=CHS?CHS.t+" ("+CHS.id+")":"(아직 없음)"; }
+function chNew(){ var m=$("chm"); if(!CHS){ m.innerHTML='<span class="err">곡을 먼저 고르세요.</span>'; return; }
+  var sv=$("chs").value, s=sv?Date.parse(sv+":00+09:00"):Date.now(), d=parseInt($("chdays").value,10)||7, ttl=($("chttl").value||"").trim()||"이번 주 챌린지";
+  if(!(d>=1&&d<=60)){ m.innerHTML='<span class="err">기간은 1~60일.</span>'; return; }
+  if(!confirm("챌린지를 등록할까요? "+ttl+" · "+CHS.t+" · "+d+"일")) return;
+  api("/kst/chal/admin",{method:"POST",body:JSON.stringify({op:"new",sid:CHS.id,t:CHS.t,ttl:ttl,s:s,days:d})}).then(function(j){ if(!j.ok) throw new Error(j.err); chLoad(); }).catch(function(e){ m.innerHTML='<span class="err">'+errTx(e)+'</span>'; }); }
+function chEnd(){ if(!confirm("지금 챌린지를 종료할까요? (참여 영상과 기록은 남습니다)")) return;
+  api("/kst/chal/admin",{method:"POST",body:JSON.stringify({op:"end"})}).then(function(j){ if(!j.ok) throw new Error(j.err); chLoad(); }).catch(function(e){ alert(errTx(e).replace(/<[^>]+>/g,"")); }); }
+// ── 방문 MIS (10-31) — 허브 /hc?s=kara (노래방 사이트, 세션마다 1번 · 로봇·사장님 기기 뺌)
+function vsLoad(){ fetch(HUB+"/hc?s=kara&n=0&geo=1",{cache:"no-store"}).then(function(r){ return r.json(); }).then(function(K){
+  $("pane").innerHTML='<div class="card"><b>노래방 사이트 방문</b><div class="msg">karaoke.moneypuzzle.co.kr · 세션마다 1번 셉니다. 로봇·서버와 사장님 기기는 세지 않습니다(10-31부터).</div><div class="tiles">'+tile((K.total||0).toLocaleString(),"누적 방문")+tile((K.uniq||0).toLocaleString(),"누적 방문자")+tile((K.tuniq||0).toLocaleString(),"오늘 방문자")+tile((K.today||0).toLocaleString(),"오늘 방문")+tile((K.bot||0).toLocaleString(),"로봇 (안 셈)")+'</div></div>'; }).catch(fail); }
 
 // ── 관리자 도구 MIS — 허브 /kadm/log · 비밀번호 바꾸기 /kadminpw ──
 var WHY={login:"로그인",bad:"비밀번호 틀림",locked:"잠긴 동안 시도",noinit:"설정 전",init:"처음 설정",pwchange:"비밀번호 바꿈",reset:"비상 복구"};
