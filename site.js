@@ -24,6 +24,7 @@ function instGo(){
   o.innerHTML='<div><img src="logo.png" alt=""><div style="font-size:18px;font-weight:900;margin:10px 0 8px">Money Puzzle Karaoke<br>머니퍼즐 노래방</div><div style="font-size:14.5px;line-height:1.7;text-align:left">'+L(TX.iosT)+'</div><button type="button" style="background:#ffe066;color:#1a1300">'+esc(L(TX.ok))+'</button></div>';
   document.body.appendChild(o); o.querySelector("button").onclick=function(){ o.remove(); }; o.onclick=function(e){ if(e.target===o) o.remove(); }; }
 function account(){ if(!window.mpPG) return; mpPG.open(); var p=document.getElementById("pgBox"); if(p) p.style.zIndex="2147483006"; }
+// 「내 계정」 단추는 뺐다 — 초록 남은 곡 칸이 로그인·계정 창을 연다 (사장님 10-30)
 // 노래방 화면(#karBox)이 생길 때마다 머리글을 사이트용으로 (karaoke.js 가 토스 결제창에서 돌아올 때 스스로 다시 열어도 같게)
 function deco(){ var b=document.getElementById("karBox"); if(!b) return; var hd=b.querySelector(".khd"); if(!hd) return;
   var t=hd.querySelector(".kttl");
@@ -33,10 +34,8 @@ function deco(){ var b=document.getElementById("karBox"); if(!b) return; var hd=
   var s=hd.querySelector(".ksite"); if(!s){ s=document.createElement("div"); s.className="ksite"; hd.appendChild(s); }
   s.innerHTML='<select aria-label="Language">'+["ko","en","ja","zhs","zht","es"].map(function(l){ return '<option value="'+l+'"'+(l===window.LANG?' selected':'')+'>'+esc(({ko:"한국어",en:"English",ja:"日本語",zhs:"简体中文",zht:"繁體中文",es:"Español"})[l])+'</option>'; }).join("")+'</select>'
     +'<button type="button" class="kshr" aria-label="'+esc(L(SH.btn))+'" title="'+esc(L(SH.btn))+'">'+SHI.other.replace('fill="#5b93ff"','fill="currentColor"')+'</button>'
-    +'<button type="button" class="kacc">'+esc(L(TX.acc))+'</button>'
     +(!isApp()&&(instEv||isIOS())?'<button type="button" class="kinst">'+esc(L(TX.inst))+'</button>':'');
   s.querySelector("select").onchange=function(){ window.setLang(this.value); reopen(); };
-  s.querySelector(".kacc").onclick=account;
   s.querySelector(".kshr").onclick=shareOpen;
   var ib=s.querySelector(".kinst"); if(ib) ib.onclick=instGo;
   // 반주기(곡 이용권 칸) 옆면에 걸린 마이크 — 손님에겐 장식. 누르면 관리자 로그인
