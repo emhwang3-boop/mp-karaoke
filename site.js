@@ -84,18 +84,42 @@ function vPage(){ var pre=document.getElementById("pre"); if(pre) pre.style.disp
   draw(null,"lo");
   fetch(HUB+"/kst/pv?id="+VQ+"&dev="+encodeURIComponent(vDev())).then(function(r){ return r.json(); }).then(function(j){ draw(j,j&&j.ok?"ok":"no"); }).catch(function(){ draw(null,"no"); });
   try{ ntap("kara_site","pv_open"); }catch(e){} }
+// ── 우리끼리 방 카톡 초대 링크 ?rinv=<토큰> (사장님 10-31) — 토큰은 localStorage "kst_rinv" {tok,at} 에 보관(설치 뒤·오픈 뒤에도 쓰게)
+//   사장님 기기(mp_owner) = 노래방 열고 karRoomJoin(허브 join → 스테이지 › 우리끼리 › 그 방) · 손님 기기 = 「곧 오픈 예정」 + 「앱 설치」 안내만
+var RT={hd:{ko:"우리끼리 방 초대",en:"Just-us room invitation",ja:"「仲間だけ」ルームへの招待",zhs:"小圈子房间邀请",zht:"小圈子房間邀請",es:"Invitación a una sala «Solo nosotros»"},
+ soon:{ko:"곧 오픈 예정 — 앱을 설치해 두시면 오픈 때 바로 입장할 수 있어요",en:"Opening soon — install the app now and you can enter the room as soon as it opens",ja:"近日オープン — アプリを入れておけば、オープンと同時に入室できます",zhs:"即将开放 — 先安装应用，开放时即可直接进入",zht:"即將開放 — 先安裝應用程式，開放時即可直接進入",es:"Próximamente — instala la app y podrás entrar en cuanto abra"},
+ kar:{ko:"노래방 입장",en:"Open karaoke",ja:"カラオケを開く",zhs:"打开练歌房",zht:"開啟練歌房",es:"Abrir karaoke"}};
+var RQ=(location.search.match(/[?&]rinv=([A-Za-z0-9]{16})(?![A-Za-z0-9])/)||[])[1]||"";
+if(RQ){ try{ localStorage.setItem("kst_rinv",JSON.stringify({tok:RQ,at:Date.now()})); }catch(e){}
+  try{ var rq=location.search.slice(1).split("&").filter(function(x){ return !/^rinv=/i.test(x); }).join("&"); history.replaceState(history.state,"",location.pathname+(rq?"?"+rq:"")+location.hash); }catch(e){} }
+function rTok(){ try{ var x=JSON.parse(localStorage.getItem("kst_rinv")||"null"); if(x&&/^[A-Za-z0-9]{16}$/.test(x.tok||"")&&Date.now()-(+x.at||0)<8*86400000) return x.tok; localStorage.removeItem("kst_rinv"); }catch(e){} return ""; }
+function rOwn(){ try{ return !!localStorage.getItem("mp_owner"); }catch(e){ return false; } }
+var RP=!!(RQ&&!rOwn()&&!VQ);   // 손님 기기 안내 화면이 떠 있는 동안 노래방을 열지 않는다
+function rPage(){ var pre=document.getElementById("pre"); if(pre) pre.style.display="none"; var o=document.getElementById("karV"); if(o) o.remove();
+  o=document.createElement("div"); o.id="karV"; document.body.appendChild(o);
+  o.innerHTML='<div class="vin"><div class="vhd"><img src="logo.png" alt=""><div><b>Money Puzzle</b><small>StageSong</small></div></div>'
+    +'<div class="vlk"><img src="img/kara/kst_room.png" alt=""><p>'+esc(L(RT.hd))+'</p><div class="vn">'+esc(L(RT.soon))+'</div></div>'
+    +'<div class="vbt">'+(isApp()?'':'<button type="button" class="vins">'+esc(L(TX.inst))+'</button>')+'<button type="button" class="vgo">'+esc(L(RT.kar))+'</button></div></div>';
+  var ib=o.querySelector(".vins"); if(ib) ib.onclick=function(){ try{ ntap("kara_site","rinv_inst"); }catch(e){} vInst(); };
+  o.querySelector(".vgo").onclick=function(){ try{ ntap("kara_site","rinv_kar"); }catch(e){} RP=false; o.remove(); T0=0; start(); };
+  try{ ntap("kara_site","rinv_open"); }catch(e){} }
+// 노래방 화면이 생기면 보관한 토큰으로 한 번 입장 (사장님 기기만)
+var RJ=false; function rJoin(){ if(RJ||!rOwn()) return; var t=rTok(); if(!t||!window.karRoomJoin) return; var n=0;
+  RJ=true; (function w(){ if(document.getElementById("karBox")){ setTimeout(function(){ window.karRoomJoin(t); },300); return; } if(++n<60) setTimeout(w,250); else RJ=false; })(); }
 var T0=Date.now(), PRE_MS=7000;   // 첫 화면 = 로고만 3초 → 로고+「Money Puzzle / StageSong」 4초 → 노래방 (사장님 10-30)
 setTimeout(function(){ var t=document.getElementById("preT"); if(t) t.style.visibility="visible"; },3000);
-function start(){ if(VQ) return; var w=PRE_MS-(Date.now()-T0); if(w>0&&!document.getElementById("karBox")){ clearTimeout(start._t); start._t=setTimeout(start,w); return; }
+function start(){ if(VQ||RP) return; if(RQ&&rOwn()) T0=0; var w=PRE_MS-(Date.now()-T0); if(w>0&&!document.getElementById("karBox")){ clearTimeout(start._t); start._t=setTimeout(start,w); return; }
   var pre=document.getElementById("pre"); if(pre) pre.style.display="none";
   if(!document.getElementById("karBox")&&window.karOpen) karOpen("site");
+  rJoin();
   try{ ntap("kara_site","tap"); }catch(e){} }
 // karaoke.js 는 ?karres= (토스에서 돌아옴)이면 0.7초 뒤 스스로 연다 — 그때는 먼저 열지 않는다
 if(/[?&]karres=/.test(location.search)) setTimeout(function(){ var pre=document.getElementById("pre"); if(pre) pre.style.display="none"; if(!document.getElementById("karBox")) start(); },1500);
 else if(VQ){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",vPage); else vPage(); }
+else if(RP){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",rPage); else rPage(); }
 else if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",start); else start();
 // 노래방 닫기(뒤로가기 등)로 화면이 비면 다시 연다 — 이 사이트는 노래방뿐
-setInterval(function(){ if(!VQ&&!document.getElementById("karBox")&&!/[?&]karres=/.test(location.search)) start(); },1500);
+setInterval(function(){ if(!VQ&&!RP&&!document.getElementById("karBox")&&!/[?&]karres=/.test(location.search)) start(); },1500);
 // 「앱 설치」 링크로 온 손님 — 안드로이드: 가운데 큰 「앱 설치」(브라우저 규칙상 한 번은 눌러야 함) · 아이폰: 홈 화면에 추가 안내 (투어앱과 같은 방식, 10-30)
 (function(){ var want=false; try{ want=sessionStorage.getItem("mpv_wantinst")==="1"; }catch(e){} if(!want||isApp()) return;
   var done=function(){ try{ sessionStorage.removeItem("mpv_wantinst"); }catch(e){} };
