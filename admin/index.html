@@ -82,7 +82,7 @@ function login(){ var v=$("pw").value; if(v) PW=v; if(!PW){ $("gmsg").textConten
     try{ sessionStorage.setItem("mpkadm",PW); }catch(e){} $("pw").value=""; $("gate").hidden=true; $("app").hidden=false; menu(); show("login",1);
   }).catch(function(e){ PW=""; try{ sessionStorage.removeItem("mpkadm"); }catch(x){} $("gmsg").innerHTML='<span class="err">'+errTx(e)+'</span>'; }); }
 function logout(){ PW=""; try{ sessionStorage.removeItem("mpkadm"); }catch(e){} location.reload(); }
-var MENU=[["login","로그인 MIS","계정 수·새 가입·최근 로그인"],["use","노래방 이용 MIS","곡별 재생·매출·협회 CSV · 사이트별"],["sale","곡 이용권 판매·잔액 (지난 판매)","지난 주문·계정별 잔여 곡 (새 판매 없음)"],["refund","환불 도구","요청 → 자동 계산 → 환불 처리"],["point","포인트","지갑·환불 요청·만료 알림·설정"],["aiv","AI 영상","가격·하루 한도·오늘 생성 수·최근 작업"],["pass","이용권","가격 1·3·6·12개월 · 이용 중 계정"],["chal","챌린지","곡·기간·제목 등록 / 종료 · 지난 기록"],["dor","도란도란","요금·진행 중 방·신고·이번 달 사용량"],["visit","방문 MIS","누적·오늘 방문자 (노래방 사이트)"],["adm","관리자 도구 MIS","로그인 기록·비밀번호 바꾸기"]];
+var MENU=[["login","로그인 MIS","계정 수·새 가입·최근 로그인"],["use","노래방 이용 MIS","곡별 재생·매출·협회 CSV · 사이트별"],["sale","곡 이용권 판매·잔액 (지난 판매)","지난 주문·계정별 잔여 곡 (새 판매 없음)"],["refund","환불 도구","요청 → 자동 계산 → 환불 처리"],["point","포인트","지갑·환불 요청·만료 알림·설정"],["aiv","AI 영상","가격·하루 한도·오늘 생성 수·최근 작업"],["pass","이용권","가격 1·3·6·12개월 · 이용 중 계정"],["chal","챌린지","곡·기간·제목 등록 / 종료 · 지난 기록"],["dor","도란도란","요금·진행 중 방·신고·이번 달 사용량"],["deco","방 꾸미기","장소·소품·세트 가격 · 오늘 판매"],["visit","방문 MIS","누적·오늘 방문자 (노래방 사이트)"],["adm","관리자 도구 MIS","로그인 기록·비밀번호 바꾸기"]];
 function menu(){ $("app").appendChild($("pane")); $("menu").innerHTML=MENU.map(function(m){ return '<button data-k="'+m[0]+'" onclick="show(this.dataset.k)"><b>'+esc(m[1])+'</b><small>'+esc(m[2])+'</small></button>'; }).join(""); }
 // 아코디언 (사장님 10-31 「고쳐」) — 고른 칸 내용은 그 카드 바로 밑에 펼치고 나머지 카드는 아래로 · 다른 카드 = 앞 칸 접고 새 칸 · 같은 카드 다시 = 접기 · 펼치면 그 카드를 화면 맨 위로
 var OPEN="";
@@ -90,7 +90,7 @@ function show(k,noScroll){ var M=$("menu"), P=$("pane"), btn=M.querySelector('bu
   if(OPEN===k){ OPEN=""; btn.classList.remove("on"); btn.setAttribute("aria-expanded","false"); P.hidden=true; P.innerHTML=""; return; }
   OPEN=k; [].forEach.call(M.querySelectorAll("button[data-k]"),function(b){ var on=b===btn; b.classList.toggle("on",on); b.setAttribute("aria-expanded",on?"true":"false"); });
   btn.insertAdjacentElement("afterend",P); P.hidden=false; P.innerHTML='<div class="card"><div class="msg">불러오는 중…</div></div>';
-  ({login:lgLoad,use:klLoad,sale:slLoad,refund:rfLoad,point:ptLoad,aiv:avLoad,pass:psLoad,chal:chLoad,dor:drLoad,visit:vsLoad,adm:adLoad})[k]();
+  ({login:lgLoad,use:klLoad,sale:slLoad,refund:rfLoad,point:ptLoad,aiv:avLoad,pass:psLoad,chal:chLoad,dor:drLoad,deco:dcLoad,visit:vsLoad,adm:adLoad})[k]();
   if(!noScroll) setTimeout(function(){ btn.scrollIntoView({block:"start",behavior:"smooth"}); },30); }
 function fail(e){ $("pane").innerHTML='<div class="card err">'+errTx(e)+'</div>'; if(e&&e.message==="admin") setTimeout(logout,1500); }
 
@@ -278,6 +278,35 @@ function drSave(){ var b={dor:parseInt($("drD").value,10),dorx:parseInt($("drX")
   if(!ok(b.dor)||!ok(b.dorx)||!ok(b.room)){ alert("값을 확인해 주세요 (0~100,000P · 10P 단위)."); return; }
   if(!confirm("도란도란 요금을 저장할까요?\n만들기 "+b.dor.toLocaleString()+"P · 연장 "+b.dorx.toLocaleString()+"P · 우리끼리 노래 방 "+b.room.toLocaleString()+"P")) return;
   api("/shop/kadmin/ptcfg",{method:"POST",body:JSON.stringify(b)}).then(function(j){ if(!j.ok) throw new Error(j.err); alert("저장했습니다."); drLoad(); }).catch(function(e){ alert(errTx(e).replace(/<[^>]+>/g,"")); }); }
+// ── 방 꾸미기 (10-31) — 허브 GET/POST /shop/kadmin/deco · 가격 100P 단위(끝자리 900 안 됨) · 세트는 낱개 합보다 싸게 · 오늘·최근 7일 판매
+var DCC={place:"장소",furniture:"가구",decor:"장식",food:"먹거리",party:"노래방",outdoor:"야외",pet:"동물"}, DCJ=null;
+function dcPOk(v){ return Number.isInteger(v)&&v>=0&&v<=100000&&v%100===0&&v%1000!==900; }
+function dcLoad(){ api("/shop/kadmin/deco").then(function(j){ if(!j.ok) throw new Error(j.err); DCJ=j; var c=j.cfg, t=j.today||{}, nm={};
+  j.items.forEach(function(x){ nm[x.k]=x.nm; }); j.sets.forEach(function(x){ nm[x.k]="세트 · "+x.nm; });
+  var w7=(j.days||[]).reduce(function(a,d){ a.n+=d.n||0; a.pt+=d.pt||0; a.tpt+=d.tpt||0; return a; },{n:0,pt:0,tpt:0});
+  var its=Object.keys(t.it||{}).map(function(k){ return [k,t.it[k]]; }).sort(function(a,b){ return (b[1].pt+b[1].tpt)-(a[1].pt+a[1].tpt); });
+  var row=function(x){ var cur=c.p[x.k]; return '<tr><td class="l">'+esc(x.nm)+(x.cons?' <small>(소모품)</small>':'')+'</td><td>'+esc(DCC[x.c]||x.c)+'</td><td>'+x.def.toLocaleString()+'P</td><td><input type="number" id="dcp_'+x.k+'" min="0" max="100000" step="100" value="'+cur+'" style="width:96px" oninput="dcSums()">P</td></tr>'; };
+  $("pane").innerHTML='<div class="card"><b>방 꾸미기</b><div class="msg">도란도란·우리끼리 노래 방의 「꾸미기」 상점입니다. 장소는 한 번 구매하면 영구 보관(방 배경은 방장만), 소품은 방 사람 누구나 구매해 놓습니다. 먹거리·폭죽·야광봉은 방에 놓으면 사용됩니다. 결제는 포인트 지갑에서 차감하고 사용 내역에 「방 꾸미기」로 남습니다.</div>'
+    +'<div class="tiles">'+tile((t.n||0)+"건","오늘 판매")+tile((t.pt||0).toLocaleString()+"P","오늘 판매 (유료·무료 P)")+tile((t.tpt||0).toLocaleString()+"P","오늘 시험 P")+tile(w7.n+"건 · "+w7.pt.toLocaleString()+"P","최근 7일")+'</div></div>'
+    +'<div class="card"><b>오늘 판매 ('+esc(t.d||kday())+')</b><div class="tw"><table><tr><th class="l">아이템</th><th>건수</th><th>P</th><th>시험 P</th></tr>'
+    +(its.map(function(r){ return '<tr><td class="l">'+esc(nm[r[0]]||r[0])+'</td><td>'+r[1].n+'</td><td>'+(r[1].pt||0).toLocaleString()+'P</td><td>'+(r[1].tpt||0).toLocaleString()+'P</td></tr>'; }).join("")||'<tr><td class="l" colspan="4">아직 없습니다.</td></tr>')+'</table></div>'
+    +'<div class="tw" style="margin-top:8px"><table><tr><th>날짜</th><th>건수</th><th>P</th><th>시험 P</th></tr>'+((j.days||[]).map(function(d){ return '<tr><td>'+esc(d.d)+'</td><td>'+(d.n||0)+'</td><td>'+(d.pt||0).toLocaleString()+'P</td><td>'+(d.tpt||0).toLocaleString()+'P</td></tr>'; }).join("")||'<tr><td colspan="4">없습니다.</td></tr>')+'</table></div></div>'
+    +'<div class="card"><b>세트 가격</b><div class="msg">세트 가격은 낱개 합보다 낮아야 합니다. 이미 가진 영구 아이템이 섞인 손님에게는 남은 몫 비율만큼(1,000P 단위 내림) 받습니다.</div><div class="tw"><table><tr><th class="l">세트</th><th class="l">구성</th><th>낱개 합</th><th>기본</th><th>가격</th></tr>'
+    +j.sets.map(function(x){ return '<tr><td class="l">'+esc(x.nm)+'</td><td class="l"><small>'+x.it.map(function(k){ return esc(nm[k]||k); }).join(" · ")+'</small></td><td id="dcsum_'+x.k+'">'+x.sum.toLocaleString()+'P</td><td>'+x.def.toLocaleString()+'P</td><td><input type="number" id="dcs_'+x.k+'" min="1000" max="100000" step="1000" value="'+c.s[x.k]+'" style="width:96px">P</td></tr>'; }).join("")+'</table></div></div>'
+    +'<div class="card"><b>아이템 가격</b><div class="msg">100P 단위 · 끝자리 900(1,900·2,900 등) 안 됨 · 0~100,000P · 노래방 룸만 0P(무료) 가능 · 바꾸면 앱 상점에 바로 반영됩니다.</div><div class="tw"><table><tr><th class="l">아이템</th><th>분류</th><th>기본</th><th>가격</th></tr>'
+    +j.items.map(row).join("")+'</table></div><div class="row" style="margin-top:8px"><button onclick="dcSave()">가격 저장</button><button class="g" onclick="dcReset()">기본값으로</button></div><div class="msg" id="dcm"></div></div>';
+ }).catch(fail); }
+function dcVals(){ var p={}, s={}; DCJ.items.forEach(function(x){ p[x.k]=parseInt(($("dcp_"+x.k)||{}).value,10); }); DCJ.sets.forEach(function(x){ s[x.k]=parseInt(($("dcs_"+x.k)||{}).value,10); }); return {p:p,s:s}; }
+function dcSums(){ if(!DCJ) return; var v=dcVals(); DCJ.sets.forEach(function(x){ var e=$("dcsum_"+x.k), sum=x.it.reduce(function(a,k){ return a+(v.p[k]||0); },0); if(e) e.textContent=sum.toLocaleString()+"P"; }); }
+function dcPut(b){ api("/shop/kadmin/deco",{method:"POST",body:JSON.stringify(b)}).then(function(j){ if(!j.ok) throw new Error(j.err==="setsum"?"세트 가격이 낱개 합("+(j.sum||0).toLocaleString()+"P)보다 낮아야 합니다":j.err==="price"?"가격을 확인해 주세요 ("+(j.k||"")+")":j.err); alert("저장했습니다."); dcLoad(); }).catch(function(e){ alert(errTx(e).replace(/<[^>]+>/g,"")); }); }
+function dcSave(){ var v=dcVals(), bad=[], p={}, s={};
+  DCJ.items.forEach(function(x){ var n=v.p[x.k]; if(!dcPOk(n)||(x.k!=="pl_noraebang"&&n<100)) bad.push(x.nm); else if(n!==DCJ.cfg.p[x.k]) p[x.k]=n; });
+  DCJ.sets.forEach(function(x){ var n=v.s[x.k], sum=x.it.reduce(function(a,k){ return a+(v.p[k]||0); },0); if(!dcPOk(n)||n<1000) bad.push(x.nm+" 세트"); else if(n>=sum) bad.push(x.nm+" 세트(낱개 합 "+sum.toLocaleString()+"P보다 낮게)"); else if(n!==DCJ.cfg.s[x.k]) s[x.k]=n; });
+  if(bad.length){ alert("가격을 확인해 주세요 (100P 단위 · 끝자리 900 안 됨)\n"+bad.join("\n")); return; }
+  var n=Object.keys(p).length+Object.keys(s).length; if(!n){ alert("바뀐 값이 없습니다."); return; }
+  if(!confirm("방 꾸미기 가격 "+n+"개를 저장할까요?\n"+Object.keys(p).map(function(k){ return DCJ.items.filter(function(x){ return x.k===k; })[0].nm+" "+p[k].toLocaleString()+"P"; }).concat(Object.keys(s).map(function(k){ return DCJ.sets.filter(function(x){ return x.k===k; })[0].nm+" 세트 "+s[k].toLocaleString()+"P"; })).join("\n"))) return;
+  dcPut({p:p,s:s}); }
+function dcReset(){ if(!confirm("모든 방 꾸미기 가격을 기본값으로 되돌릴까요?")) return; var p={}, s={}; DCJ.items.forEach(function(x){ p[x.k]=x.def; }); DCJ.sets.forEach(function(x){ s[x.k]=x.def; }); dcPut({p:p,s:s}); }
 function drRep(k,st){ api("/shop/kadmin/dor",{method:"POST",body:JSON.stringify({k:k,st:st})}).then(function(j){ if(!j.ok) throw new Error(j.err); drLoad(); }).catch(function(e){ alert(errTx(e).replace(/<[^>]+>/g,"")); }); }
 function chD(ms){ return ms?new Date(ms+9*3600e3).toISOString().slice(0,16).replace("T"," "):""; }
 function chRow(c,cur){ var now=Date.now(), st=c.end||now>=c.e?"종료":now<c.s?"시작 전":"진행 중"; return '<tr><td class="l">'+esc(c.ttl)+'</td><td class="l">'+esc(c.t)+' <a href="https://www.youtube.com/watch?v='+encodeURIComponent(c.sid)+'" target="_blank" rel="noopener" class="sub">'+esc(c.sid)+'</a></td><td>'+chD(c.s)+'</td><td>'+chD(c.e)+'</td><td>'+(c.n||0)+'</td><td class="l">'+(cur?'<span class="tag k">'+st+'</span>':st+(c.endAt?" · "+chD(c.endAt):""))+'</td></tr>'; }
