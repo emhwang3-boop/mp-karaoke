@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>머니퍼즐 노래방 · Money Puzzle Karaoke</title>
-<meta name="description" content="머니퍼즐 노래방(Money Puzzle Karaoke) — 금영 노래방 공식 유튜브 채널 노래방 영상과 곡 이용권. 한국어·English·日本語·简体中文·繁體中文·Español">
+<meta name="description" content="머니퍼즐 노래방(Money Puzzle Karaoke) — 금영 노래방 공식 유튜브 채널 노래방 영상과 기간 이용권(노래 무제한). 한국어·English·日本語·简体中文·繁體中文·Español">
 <meta name="theme-color" content="#12081f">
 <meta property="og:title" content="머니퍼즐 노래방 · Money Puzzle Karaoke">
-<meta property="og:description" content="금영 노래방 공식 유튜브 노래방 영상 · 곡 이용권 — 6개 언어">
+<meta property="og:description" content="금영 노래방 공식 유튜브 노래방 영상 · 기간 이용권 — 6개 언어">
 <meta property="og:image" content="https://karaoke.moneypuzzle.co.kr/icon-512.png">
 <meta property="og:url" content="https://karaoke.moneypuzzle.co.kr/">
 <link rel="icon" href="favicon.png">
@@ -93,14 +93,14 @@ function ntap(k,e){ try{ if(!k||!/^[A-Za-z0-9_-]{1,64}$/.test(k)) return; var x=
 // 로그인 창(pg.js) — 노래방용 문구로 (배지·이벤트 이야기 없이)
 var PG_SITE={simple:true,aredir:location.origin+"/",W:{
  title:{ko:"내 계정",en:"My account",ja:"マイアカウント",zhs:"我的账户",zht:"我的帳戶",es:"Mi cuenta"},
- intro:{ko:"머니퍼즐 노래방 계정 — 산 곡 이용권은 로그인한 계정에 구매일부터 1년간 보관됩니다.",en:"Money Puzzle Karaoke account — song passes you buy are kept in your signed-in account for 1 year from purchase.",ja:"マネーパズル カラオケのアカウント — 購入した曲チケットはログインしたアカウントに購入日から1年間保管されます。",zhs:"Money Puzzle 练歌房账户 — 购买的点歌券自购买日起在登录账户中保留1年。",zht:"Money Puzzle 練歌房帳戶 — 購買的點歌券自購買日起在登入帳戶中保留1年。",es:"Cuenta de Money Puzzle Karaoke: los bonos que compres se guardan en tu cuenta durante 1 año desde la compra."},
+ intro:{ko:"머니퍼즐 노래방 계정 — 포인트와 이용권은 로그인한 계정에 적용됩니다.",en:"Money Puzzle Karaoke account — your points and pass apply to the account you sign in with.",ja:"マネーパズル カラオケのアカウント — ポイントと利用券はログインしたアカウントに適用されます。",zhs:"Money Puzzle 练歌房账户 — 积分和畅唱券适用于登录的账户。",zht:"Money Puzzle 練歌房帳戶 — 點數和暢唱券適用於登入的帳戶。",es:"Cuenta de Money Puzzle Karaoke: tus puntos y tu bono se aplican a la cuenta con la que inicias sesión."},
  ask:{ko:"구글 또는 애플 계정으로 로그인하세요.",en:"Sign in with your Google or Apple account.",ja:"GoogleまたはAppleアカウントでログインしてください。",zhs:"请使用Google或Apple账号登录。",zht:"請使用Google或Apple帳號登入。",es:"Inicia sesión con tu cuenta de Google o Apple."},
- priv:{ko:"로그인하면 이름·이메일·구글 또는 애플 계정 식별값을 곡 이용권 보관·구매 확인과 부정 이용 방지 목적으로 보관하며, 마지막 이용 후 1년 뒤 삭제합니다(결제 기록은 법령에 따라 5년).",en:"When you sign in, we keep your name, email and Google or Apple account identifier to hold your song passes, confirm purchases and prevent misuse, and delete them 1 year after your last use (payment records: 5 years as required by law).",ja:"ログインすると、氏名・メールアドレス・GoogleまたはAppleアカウント識別子を曲チケットの保管・購入確認と不正利用防止のために保管し、最終利用から1年後に削除します（決済記録は法令により5年）。",zhs:"登录后，我们会为保存点歌券、确认购买及防止不当使用保存您的姓名、电子邮箱和Google或Apple账号标识，并在最后一次使用1年后删除（付款记录依法保存5年）。",zht:"登入後，我們會為保存點歌券、確認購買及防止不當使用保存您的姓名、電子郵件和Google或Apple帳號識別碼，並在最後一次使用1年後刪除（付款紀錄依法保存5年）。",es:"Al iniciar sesión guardamos tu nombre, correo e identificador de Google o Apple para conservar tus bonos, confirmar compras y prevenir abusos, y los eliminamos 1 año después de tu último uso (registros de pago: 5 años por ley)."}
+ priv:{ko:"로그인하면 이름·이메일·구글 또는 애플 계정 식별값을 포인트·이용권 보관·구매 확인과 부정 이용 방지 목적으로 보관하며, 마지막 이용 후 1년 뒤 삭제합니다(결제 기록은 법령에 따라 5년).",en:"When you sign in, we keep your name, email and Google or Apple account identifier to hold your points and passes, confirm purchases and prevent misuse, and delete them 1 year after your last use (payment records: 5 years as required by law).",ja:"ログインすると、氏名・メールアドレス・GoogleまたはAppleアカウント識別子をポイント・利用券の保管・購入確認と不正利用防止のために保管し、最終利用から1年後に削除します（決済記録は法令により5年）。",zhs:"登录后，我们会为保存积分·畅唱券、确认购买及防止不当使用保存您的姓名、电子邮箱和Google或Apple账号标识，并在最后一次使用1年后删除（付款记录依法保存5年）。",zht:"登入後，我們會為保存點數·暢唱券、確認購買及防止不當使用保存您的姓名、電子郵件和Google或Apple帳號識別碼，並在最後一次使用1年後刪除（付款紀錄依法保存5年）。",es:"Al iniciar sesión guardamos tu nombre, correo e identificador de Google o Apple para conservar tus puntos y bonos, confirmar compras y prevenir abusos, y los eliminamos 1 año después de tu último uso (registros de pago: 5 años por ley)."}
 }};
 </script>
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"></script>
-<script src="karaoke.js?v=1031d2"></script>
-<script src="pg.js?v=1031d2"></script>
-<script src="site.js?v=1031d2"></script>
+<script src="karaoke.js?v=1031e1"></script>
+<script src="pg.js?v=1031e1"></script>
+<script src="site.js?v=1031e1"></script>
 </body>
 </html>
