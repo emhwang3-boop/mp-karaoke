@@ -82,7 +82,7 @@ function login(){ var v=$("pw").value; if(v) PW=v; if(!PW){ $("gmsg").textConten
     try{ sessionStorage.setItem("mpkadm",PW); }catch(e){} $("pw").value=""; $("gate").hidden=true; $("app").hidden=false; menu(); show("login",1);
   }).catch(function(e){ PW=""; try{ sessionStorage.removeItem("mpkadm"); }catch(x){} $("gmsg").innerHTML='<span class="err">'+errTx(e)+'</span>'; }); }
 function logout(){ PW=""; try{ sessionStorage.removeItem("mpkadm"); }catch(e){} location.reload(); }
-var MENU=[["login","로그인 MIS","계정 수·새 가입·최근 로그인"],["use","노래방 이용 MIS","곡별 재생·매출·협회 CSV · 사이트별"],["sale","곡 이용권 판매·잔액","주문(시험/실제)·계정별 남은 곡"],["refund","환불 도구","요청 → 자동 계산 → 환불 처리"],["point","포인트","지갑·환불 요청·만료 알림·설정"],["price","묶음 가격표","1 · 3+1 · 5+2 · 10+5"],["chal","챌린지","곡·기간·제목 등록 / 종료 · 지난 기록"],["visit","방문 MIS","누적·오늘 방문자 (노래방 사이트)"],["adm","관리자 도구 MIS","로그인 기록·비밀번호 바꾸기"]];
+var MENU=[["login","로그인 MIS","계정 수·새 가입·최근 로그인"],["use","노래방 이용 MIS","곡별 재생·매출·협회 CSV · 사이트별"],["sale","곡 이용권 판매·잔액","주문(시험/실제)·계정별 남은 곡"],["refund","환불 도구","요청 → 자동 계산 → 환불 처리"],["point","포인트","지갑·환불 요청·만료 알림·설정"],["aiv","AI 영상","가격·하루 한도·오늘 생성 수·최근 작업"],["price","묶음 가격표","1 · 3+1 · 5+2 · 10+5"],["chal","챌린지","곡·기간·제목 등록 / 종료 · 지난 기록"],["visit","방문 MIS","누적·오늘 방문자 (노래방 사이트)"],["adm","관리자 도구 MIS","로그인 기록·비밀번호 바꾸기"]];
 function menu(){ $("app").appendChild($("pane")); $("menu").innerHTML=MENU.map(function(m){ return '<button data-k="'+m[0]+'" onclick="show(this.dataset.k)"><b>'+esc(m[1])+'</b><small>'+esc(m[2])+'</small></button>'; }).join(""); }
 // 아코디언 (사장님 10-31 「고쳐」) — 고른 칸 내용은 그 카드 바로 밑에 펼치고 나머지 카드는 아래로 · 다른 카드 = 앞 칸 접고 새 칸 · 같은 카드 다시 = 접기 · 펼치면 그 카드를 화면 맨 위로
 var OPEN="";
@@ -90,7 +90,7 @@ function show(k,noScroll){ var M=$("menu"), P=$("pane"), btn=M.querySelector('bu
   if(OPEN===k){ OPEN=""; btn.classList.remove("on"); btn.setAttribute("aria-expanded","false"); P.hidden=true; P.innerHTML=""; return; }
   OPEN=k; [].forEach.call(M.querySelectorAll("button[data-k]"),function(b){ var on=b===btn; b.classList.toggle("on",on); b.setAttribute("aria-expanded",on?"true":"false"); });
   btn.insertAdjacentElement("afterend",P); P.hidden=false; P.innerHTML='<div class="card"><div class="msg">불러오는 중…</div></div>';
-  ({login:lgLoad,use:klLoad,sale:slLoad,refund:rfLoad,point:ptLoad,price:pcLoad,chal:chLoad,visit:vsLoad,adm:adLoad})[k]();
+  ({login:lgLoad,use:klLoad,sale:slLoad,refund:rfLoad,point:ptLoad,aiv:avLoad,price:pcLoad,chal:chLoad,visit:vsLoad,adm:adLoad})[k]();
   if(!noScroll) setTimeout(function(){ btn.scrollIntoView({block:"start",behavior:"smooth"}); },30); }
 function fail(e){ $("pane").innerHTML='<div class="card err">'+errTx(e)+'</div>'; if(e&&e.message==="admin") setTimeout(logout,1500); }
 
@@ -168,6 +168,24 @@ function rfDo(id,act){ var u=$("u_"+id), m=$("m_"+id), used=u&&u.value!==""?+u.v
   if(!confirm(act==="done"?"이 요청을 환불 처리할까요? (지금은 기록·상태만 바뀌고 카드 취소는 하지 않습니다)":"이 요청을 거절할까요?")) return;
   api("/shop/kadmin/refund",{method:"POST",body:JSON.stringify({id:id,act:act,used:used,memo:m?m.value:""})}).then(function(j){ if(!j.ok) throw new Error(j.err); alert(act==="done"?"환불 처리 기록: "+won(j.amount)+(j.test?" (시험)":""):"거절했습니다."); rfLoad(); }).catch(function(e){ alert(errTx(e).replace(/<[^>]+>/g,"")); }); }
 
+// ── AI 영상 (10-31) — 허브 GET /shop/kadmin/aiv · POST /shop/kadmin/aiv {price,cap,ucap,max} · Runway Aleph 2.0 (aleph2)
+//   원가: 28크레딧/초 × 1크레딧 $0.01 (docs.dev.runwayml.com/guides/pricing) · 판매가 = 원가 × 2 이상
+var AVS={run:"생성 중",ok:"완성",fail:"실패"};
+function avLoad(){ api("/shop/kadmin/aiv").then(function(j){ if(!j.ok) throw new Error(j.err); var c=j.cfg, usd=c.max*j.cps/100;
+  $("pane").innerHTML='<div class="card"><b>AI 영상</b><div class="msg">녹화 구간(최대 '+c.max+'초) → Runway '+esc(j.model)+' → 테마 장면 영상. 로그인 사용자만 · 포인트 먼저 차감 · 실패·취소·20분 초과 = 자동 환불.<br>'
+   +'원가: '+j.cps+'크레딧/초 · 1크레딧 = $0.01 → '+c.max+'초 = '+(c.max*j.cps)+'크레딧 = $'+usd.toFixed(2)+' (1,338원/$ 기준 약 '+won(Math.round(usd*1338))+', 부가세 포함 약 '+won(Math.round(usd*1338*1.1))+') · 판매가는 원가 × 2 이상으로 정합니다.<br>'
+   +'Runway 열쇠 '+(j.key?'있음':'<span class="err">없음 — wrangler secret put RUNWAY_KEY</span>')+' · 하루 한도는 작업이 만들어지면 실패해도 셉니다(Runway 는 실패도 비용이 나감).</div>'
+   +'<div class="tiles">'+tile(j.n+" / "+c.cap,"오늘 생성 ("+esc(j.day)+")")+tile((j.cr||0).toLocaleString(),"오늘 예상 크레딧")+tile("$"+((j.cr||0)/100).toFixed(2),"오늘 예상 원가")+tile(c.price.toLocaleString()+"P","판매가")+'</div></div>'
+   +'<div class="card"><b>설정</b><div class="row" style="margin-top:6px">판매가 <input type="number" id="avP" min="1000" max="100000" step="100" value="'+c.price+'" style="width:100px">P · 하루 전체 <input type="number" id="avC" min="0" max="500" value="'+c.cap+'" style="width:70px">편 · 1인 하루 <input type="number" id="avU" min="0" max="50" value="'+c.ucap+'" style="width:60px">편 · 최대 <input type="number" id="avM" min="3" max="15" value="'+c.max+'" style="width:60px">초</div>'
+   +'<div class="msg">기본값: '+j.def.price.toLocaleString()+'P · 전체 '+j.def.cap+'편 · 1인 '+j.def.ucap+'편 · '+j.def.max+'초. 한도 0 = 생성 중지.</div>'
+   +'<div class="row" style="margin-top:8px"><button onclick="avSave()">설정 저장</button>'+(c.at?'<span class="sub">마지막 수정 '+esc(c.at)+'</span>':'<span class="sub">기본값</span>')+'</div></div>'
+   +'<div class="card"><b>최근 작업</b><div class="tw"><table><tr><th>시각</th><th class="l">계정</th><th class="l">테마·장면</th><th>초</th><th>P</th><th>크레딧</th><th class="l">상태</th></tr>'
+   +((j.jobs||[]).map(function(x){ return '<tr><td>'+kdt(x.at)+'</td><td class="l">'+esc(x.u)+'</td><td class="l">'+esc(x.th+" · "+x.sc)+'</td><td>'+(x.dur||0)+'</td><td>'+(x.price||0).toLocaleString()+'</td><td>'+(x.cr||0)+'</td><td class="l">'+esc(AVS[x.st]||x.st)+(x.err?' · '+esc(x.err):'')+(x.refund?' · 환불됨':'')+'</td></tr>'; }).join("")||'<tr><td class="l" colspan="7">아직 없습니다.</td></tr>')+'</table></div></div>';
+ }).catch(fail); }
+function avSave(){ var b={price:parseInt($("avP").value,10),cap:parseInt($("avC").value,10),ucap:parseInt($("avU").value,10),max:parseInt($("avM").value,10)};
+  if(!(b.price>=1000&&b.price<=100000)||!(b.cap>=0&&b.cap<=500)||!(b.ucap>=0&&b.ucap<=50)||!(b.max>=3&&b.max<=15)){ alert("값을 확인해 주세요 (판매가 1,000~100,000P · 전체 0~500편 · 1인 0~50편 · 3~15초)."); return; }
+  if(!confirm("AI 영상 설정을 저장할까요?\n판매가 "+b.price.toLocaleString()+"P · 하루 전체 "+b.cap+"편 · 1인 "+b.ucap+"편 · 최대 "+b.max+"초")) return;
+  api("/shop/kadmin/aiv",{method:"POST",body:JSON.stringify(b)}).then(function(j){ if(!j.ok) throw new Error(j.err); alert("저장했습니다."); avLoad(); }).catch(function(e){ alert(errTx(e).replace(/<[^>]+>/g,"")); }); }
 // ── 포인트 (10-31) — 허브 GET /shop/kadmin/pt · POST /shop/kadmin/ptcfg · /shop/kadmin/ptrefund · /shop/kadmin/ptnotice
 //   환불은 요청만 쌓이고, 여기서 「환불 처리」를 눌러도 기록·상태만 바뀐다(카드 취소는 PG 연결 뒤 직접). 무료 P 는 처리 때 소멸
 var PTK={d7:"7일 이내 · 수수료 없음",fee:"7일 지남 · % 수수료",fix:"7일 지남 · 정액 공제",exp:"기간 만료 · 90%"}, PTS={req:"요청",refunded:"환불 처리",rejected:"거절"}, PTM={sent:"메일 보냄",fail:"메일 실패",nomail:"메일 없음(앱 안 알림만)",off:"메일 끔",test:"시험(메일 안 보냄)"};
