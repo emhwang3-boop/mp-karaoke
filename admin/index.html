@@ -82,7 +82,7 @@ function login(){ var v=$("pw").value; if(v) PW=v; if(!PW){ $("gmsg").textConten
     try{ sessionStorage.setItem("mpkadm",PW); }catch(e){} $("pw").value=""; $("gate").hidden=true; $("app").hidden=false; menu(); show("login",1);
   }).catch(function(e){ PW=""; try{ sessionStorage.removeItem("mpkadm"); }catch(x){} $("gmsg").innerHTML='<span class="err">'+errTx(e)+'</span>'; }); }
 function logout(){ PW=""; try{ sessionStorage.removeItem("mpkadm"); }catch(e){} location.reload(); }
-var MENU=[["login","로그인 MIS","계정 수·새 가입·최근 로그인"],["use","노래방 이용 MIS","곡별 재생·매출·협회 CSV · 사이트별"],["sale","곡 이용권 판매·잔액 (지난 판매)","지난 주문·계정별 잔여 곡 (새 판매 없음)"],["refund","환불 도구","요청 → 자동 계산 → 환불 처리"],["point","포인트","지갑·환불 요청·만료 알림·설정"],["aiv","AI 영상","가격·하루 한도·오늘 생성 수·최근 작업"],["pass","이용권","가격 1·3·6·12개월 · 이용 중 계정"],["chal","챌린지","곡·기간·제목 등록 / 종료 · 지난 기록"],["dor","도란도란","요금·진행 중 방·신고·이번 달 사용량"],["deco","방 꾸미기","장소·소품·세트 가격 · 오늘 판매"],["near","주변 노래 친구 · 성인 인증","성인 인증 관문 스위치 · 동의·보이기·초대·차단·신고 · 위치 기록 · 수동 성인 인증"],["visit","방문 MIS","누적·오늘 방문자 (노래방 사이트)"],["adm","관리자 도구 MIS","로그인 기록·비밀번호 바꾸기"]];
+var MENU=[["login","로그인 MIS","계정 수·새 가입·최근 로그인"],["use","노래방 이용 MIS","곡별 재생·매출·협회 CSV · 사이트별"],["sale","곡 이용권 판매·잔액 (지난 판매)","지난 주문·계정별 잔여 곡 (새 판매 없음)"],["refund","환불 도구","요청 → 자동 계산 → 환불 처리"],["point","포인트","지갑·환불 요청·만료 알림·설정"],["aiv","AI 영상","가격·하루 한도·오늘 생성 수·최근 작업"],["grp","단체 AI 사진","가격·1인 하루 한도·오늘 생성 수·원가 추정"],["pass","이용권","가격 1·3·6·12개월 · 이용 중 계정"],["chal","챌린지","곡·기간·제목 등록 / 종료 · 지난 기록"],["dor","도란도란","요금·진행 중 방·신고·이번 달 사용량"],["deco","방 꾸미기","장소·소품·세트 가격 · 오늘 판매"],["near","주변 노래 친구 · 성인 인증","성인 인증 관문 스위치 · 동의·보이기·초대·차단·신고 · 위치 기록 · 수동 성인 인증"],["visit","방문 MIS","누적·오늘 방문자 (노래방 사이트)"],["adm","관리자 도구 MIS","로그인 기록·비밀번호 바꾸기"]];
 function menu(){ $("app").appendChild($("pane")); $("menu").innerHTML=MENU.map(function(m){ return '<button data-k="'+m[0]+'" onclick="show(this.dataset.k)"><b>'+esc(m[1])+'</b><small>'+esc(m[2])+'</small></button>'; }).join(""); }
 // 아코디언 (사장님 10-31 「고쳐」) — 고른 칸 내용은 그 카드 바로 밑에 펼치고 나머지 카드는 아래로 · 다른 카드 = 앞 칸 접고 새 칸 · 같은 카드 다시 = 접기 · 펼치면 그 카드를 화면 맨 위로
 var OPEN="";
@@ -90,7 +90,7 @@ function show(k,noScroll){ var M=$("menu"), P=$("pane"), btn=M.querySelector('bu
   if(OPEN===k){ OPEN=""; btn.classList.remove("on"); btn.setAttribute("aria-expanded","false"); P.hidden=true; P.innerHTML=""; return; }
   OPEN=k; [].forEach.call(M.querySelectorAll("button[data-k]"),function(b){ var on=b===btn; b.classList.toggle("on",on); b.setAttribute("aria-expanded",on?"true":"false"); });
   btn.insertAdjacentElement("afterend",P); P.hidden=false; P.innerHTML='<div class="card"><div class="msg">불러오는 중…</div></div>';
-  ({login:lgLoad,use:klLoad,sale:slLoad,refund:rfLoad,point:ptLoad,aiv:avLoad,pass:psLoad,chal:chLoad,dor:drLoad,deco:dcLoad,near:nrLoad,visit:vsLoad,adm:adLoad})[k]();
+  ({login:lgLoad,use:klLoad,sale:slLoad,refund:rfLoad,point:ptLoad,aiv:avLoad,grp:grLoad,pass:psLoad,chal:chLoad,dor:drLoad,deco:dcLoad,near:nrLoad,visit:vsLoad,adm:adLoad})[k]();
   if(!noScroll) setTimeout(function(){ btn.scrollIntoView({block:"start",behavior:"smooth"}); },30); }
 function fail(e){ $("pane").innerHTML='<div class="card err">'+errTx(e)+'</div>'; if(e&&e.message==="admin") setTimeout(logout,1500); }
 
@@ -168,6 +168,26 @@ function rfDo(id,act){ var u=$("u_"+id), m=$("m_"+id), used=u&&u.value!==""?+u.v
   if(!confirm(act==="done"?"이 요청을 환불 처리할까요? (지금은 기록·상태만 바뀌고 카드 취소는 하지 않습니다)":"이 요청을 거절할까요?")) return;
   api("/shop/kadmin/refund",{method:"POST",body:JSON.stringify({id:id,act:act,used:used,memo:m?m.value:""})}).then(function(j){ if(!j.ok) throw new Error(j.err); alert(act==="done"?"환불 처리 기록: "+won(j.amount)+(j.test?" (시험)":""):"거절했습니다."); rfLoad(); }).catch(function(e){ alert(errTx(e).replace(/<[^>]+>/g,"")); }); }
 
+// ── 단체 AI 사진 (10-31) — 허브 GET /shop/kadmin/grp · POST /shop/kadmin/grp {price,ucap} · 구글 Gemini (상황 사진과 같은 열쇠·같은 하루 전체 상한)
+//   원가 추정 = 토큰 × 단가 (입력 $0.50/100만 · 그림 출력 $60/100만 토큰, 1K ≈ 1,120 · 2K ≈ 1,680 토큰) — 실제 청구는 구글 결제 화면 기준
+var GRS={ok:"완성",fail:"실패(환불)"};
+function grLoad(){ api("/shop/kadmin/grp").then(function(j){ if(!j.ok) throw new Error(j.err); var c=j.cfg, fx=j.fx||1430, td=(j.days&&j.days[0])||{n:0,usd:0,ppl:0,fail:0}, wk=(j.days||[]).reduce(function(a,d){ return {n:a.n+d.n,usd:a.usd+d.usd}; },{n:0,usd:0});
+  var per2k=1680*j.usd.outT+2500*j.usd.inT, per1k=1120*j.usd.outT+1600*j.usd.inT;
+  $("pane").innerHTML='<div class="card"><b>단체 AI 사진</b><div class="msg">우리끼리 노래 방·도란도란 방 「단체 사진」 — 「참여」를 누른 사람(2~9명)의 얼굴만 사용 · 참여 접수 도란도란 60초 / 우리끼리 노래 10분 · 시작한 사람이 포인트로 결제 · 실패하면 자동 환불 · 얼굴 사진은 생성 직후 삭제.<br>'
+   +'모델 '+esc(j.model)+' · 구글 열쇠 '+(j.key?'있음':'<span class="err">없음 — wrangler secret put GEMINI_KEY</span>')+' · 하루 전체 상한은 상황 사진과 같이 셉니다 (오늘 '+j.all+' / '+j.cap+'장).<br>'
+   +'원가 추정: 6명 이상 2K 한 장 약 $'+per2k.toFixed(3)+' (약 '+won(Math.round(per2k*fx))+') · 5명 이하 1K 한 장 약 $'+per1k.toFixed(3)+' (약 '+won(Math.round(per1k*fx))+') · '+fx.toLocaleString()+'원/$ 기준</div>'
+   +'<div class="tiles">'+tile(td.n,"오늘 생성 ("+esc(j.day)+")")+tile(td.ppl||0,"오늘 참여 인원")+tile("$"+(td.usd||0).toFixed(3),"오늘 원가 추정 · 약 "+won(Math.round((td.usd||0)*fx)))+tile(td.fail||0,"오늘 실패(환불)")+tile(wk.n,"최근 7일 생성")+tile("$"+wk.usd.toFixed(2),"최근 7일 원가 추정")+tile(c.price.toLocaleString()+"P","판매가")+'</div></div>'
+   +'<div class="card"><b>설정</b><div class="row" style="margin-top:6px">판매가 <input type="number" id="grP" min="1000" max="100000" step="100" value="'+c.price+'" style="width:100px">P · 1인 하루 <input type="number" id="grU" min="0" max="50" value="'+c.ucap+'" style="width:60px">장</div>'
+   +'<div class="msg">기본값: '+j.def.price.toLocaleString()+'P · 1인 하루 '+j.def.ucap+'장. 1인 한도 0 = 생성 중지.</div>'
+   +'<div class="row" style="margin-top:8px"><button onclick="grSave()">설정 저장</button>'+(c.at?'<span class="sub">마지막 수정 '+esc(c.at)+'</span>':'<span class="sub">기본값</span>')+'</div></div>'
+   +'<div class="card"><b>최근 7일</b><div class="tw"><table><tr><th class="l">날짜</th><th>생성</th><th>참여 인원</th><th>실패</th><th>원가 추정</th></tr>'+(j.days||[]).map(function(d){ return '<tr><td class="l">'+esc(d.day)+'</td><td>'+d.n+'</td><td>'+(d.ppl||0)+'</td><td>'+(d.fail||0)+'</td><td>$'+(d.usd||0).toFixed(3)+'</td></tr>'; }).join("")+'</table></div></div>'
+   +'<div class="card"><b>오늘 작업</b><div class="tw"><table><tr><th>시각</th><th class="l">계정</th><th class="l">방</th><th class="l">테마·장면</th><th>인원</th><th>크기</th><th>원가</th><th class="l">상태</th></tr>'
+   +((j.jobs||[]).map(function(x){ return '<tr><td>'+kdt(x.at)+'</td><td class="l">'+esc(x.u||"")+'</td><td class="l">'+esc(x.kind==="dor"?"도란도란":x.kind==="room"?"우리끼리 노래":"-")+'</td><td class="l">'+esc(x.th+" · "+x.sc)+'</td><td>'+(x.n||0)+'</td><td>'+esc(x.size||"-")+'</td><td>'+(x.usd!=null?"$"+x.usd.toFixed(3):"-")+'</td><td class="l">'+esc(GRS[x.st]||x.st)+(x.err?' · '+esc(x.err):'')+'</td></tr>'; }).join("")||'<tr><td class="l" colspan="8">아직 없습니다.</td></tr>')+'</table></div></div>';
+ }).catch(fail); }
+function grSave(){ var b={price:parseInt($("grP").value,10),ucap:parseInt($("grU").value,10)};
+  if(!(b.price>=1000&&b.price<=100000&&b.price%100===0)||!(b.ucap>=0&&b.ucap<=50)){ alert("값을 확인해 주세요 (판매가 1,000~100,000P, 100P 단위 · 1인 0~50장)."); return; }
+  if(!confirm("단체 AI 사진 설정을 저장할까요?\n판매가 "+b.price.toLocaleString()+"P · 1인 하루 "+b.ucap+"장")) return;
+  api("/shop/kadmin/grp",{method:"POST",body:JSON.stringify(b)}).then(function(j){ if(!j.ok) throw new Error(j.err); alert("저장했습니다."); grLoad(); }).catch(function(e){ alert(errTx(e).replace(/<[^>]+>/g,"")); }); }
 // ── AI 영상 (10-31) — 허브 GET /shop/kadmin/aiv · POST /shop/kadmin/aiv {price,cap,ucap,max} · Runway Aleph 2.0 (aleph2)
 //   원가: 28크레딧/초 × 1크레딧 $0.01 (docs.dev.runwayml.com/guides/pricing) · 판매가 = 원가 × 2 이상
 var AVS={run:"생성 중",ok:"완성",fail:"실패"};
