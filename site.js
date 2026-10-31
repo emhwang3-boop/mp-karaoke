@@ -49,7 +49,7 @@ function deco(){ var b=document.getElementById("karBox"); if(!b) return; var hd=
 var SHI=window.karSHI||{other:""}, SH=window.karSH||{};   // 공유 아이콘·문구는 karaoke.js 로 옮김 (투어앱과 같이 씀, 10-30)
 function shareOpen(){ try{ ntap("_app","share"); }catch(e){}   // 공유창 본체는 karaoke.js(karShare) — 영상 공유와 같은 창 (10-30)
   var u="https://karaoke.moneypuzzle.co.kr/", txt=window.LANG==="ko"?"머니퍼즐 노래방 · Money Puzzle Karaoke":"Money Puzzle Karaoke · 머니퍼즐 노래방";
-  if(window.karShare) karShare({hd:L(SH.hd),url:u,iurl:u+"?install=1",txt:txt,kk:{title:"머니퍼즐 노래방 · Money Puzzle Karaoke",desc:L(SH.kdesc),img:"https://karaoke.moneypuzzle.co.kr/icon-512.png",b1:L(SH.kopen)}}); }
+  if(window.karShare) karShare({hd:L(SH.hd),url:u,iurl:u+"?install=1",txt:txt,kk:{title:"머니퍼즐 노래방 · Money Puzzle Karaoke",desc:L(SH.kdesc),img:"https://karaoke.moneypuzzle.co.kr/img/card/card_app.png",w:1200,h:630,b1:L(SH.kopen)}}); }
 function reopen(){ var b=document.getElementById("karBox"), keepPay=b&&b.querySelector(".kpm"); if(keepPay){ deco(); return; }   // 결제 창이 열려 있으면 그 창은 karaoke.js 가 그 언어로 다시 그린다
   if(window.karClose) karClose(); if(window.karOpen) karOpen("site"); }
 new MutationObserver(function(ms){ for(var i=0;i<ms.length;i++) for(var j=0;j<ms[i].addedNodes.length;j++){ var n=ms[i].addedNodes[j]; if(n.id==="karBox"){ deco(); return; } } }).observe(document.body,{childList:true});
@@ -150,14 +150,14 @@ function start(){ if(VQ||RP||CP||DP) return; if((RQ||CQ||MQ||DQ)&&rOwn()) T0=0; 
   rJoin(); cGo(); dJoin();
   try{ ntap("kara_site","tap"); }catch(e){} }
 // karaoke.js 는 ?karres= (토스에서 돌아옴)이면 0.7초 뒤 스스로 연다 — 그때는 먼저 열지 않는다
-if(/[?&]karres=/.test(location.search)) setTimeout(function(){ var pre=document.getElementById("pre"); if(pre) pre.style.display="none"; if(!document.getElementById("karBox")) start(); },1500);
+if(/[?&](karres|kptres)=/.test(location.search)) setTimeout(function(){ var pre=document.getElementById("pre"); if(pre) pre.style.display="none"; if(!document.getElementById("karBox")) start(); },1500);
 else if(VQ){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",vPage); else vPage(); }
 else if(RP){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",rPage); else rPage(); }
 else if(CP){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",cPage); else cPage(); }
 else if(DP){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",dPage); else dPage(); }
 else if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",start); else start();
 // 노래방 닫기(뒤로가기 등)로 화면이 비면 다시 연다 — 이 사이트는 노래방뿐
-setInterval(function(){ if(!VQ&&!RP&&!CP&&!DP&&!document.getElementById("karBox")&&!/[?&]karres=/.test(location.search)) start(); },1500);
+setInterval(function(){ if(!VQ&&!RP&&!CP&&!DP&&!document.getElementById("karBox")&&!/[?&](karres|kptres)=/.test(location.search)) start(); },1500);
 // 「앱 설치」 링크로 온 손님 — 안드로이드: 가운데 큰 「앱 설치」(브라우저 규칙상 한 번은 눌러야 함) · 아이폰: 홈 화면에 추가 안내 (투어앱과 같은 방식, 10-30)
 (function(){ var want=false; try{ want=sessionStorage.getItem("mpv_wantinst")==="1"; }catch(e){} if(!want||isApp()) return;
   var done=function(){ try{ sessionStorage.removeItem("mpv_wantinst"); }catch(e){} };
