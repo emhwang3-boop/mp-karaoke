@@ -56,10 +56,10 @@ td.l,th.l{text-align:left;white-space:normal;min-width:110px}
     <b>관리자 로그인</b>
     <div class="row" style="margin-top:8px"><input type="password" id="pw" autocomplete="current-password" placeholder="노래방 관리자 비밀번호" onkeydown="if(event.key==='Enter')login()"><button onclick="login()">들어가기</button></div>
     <div class="msg" id="gmsg">5번 틀리면 15분 동안 잠깁니다. 로그인 기록(시각·성공/실패)이 남습니다.</div>
-    <div class="msg"><a href="../">← 노래방으로</a></div>
+    <div class="msg"><a href="../" style="color:#fff">← 노래방으로</a></div>
   </div>
   <div id="app" hidden>
-    <div class="row" style="justify-content:flex-end;margin-top:6px"><a class="sub" href="../" style="margin-right:auto">← 노래방으로</a><button class="g" onclick="logout()">로그아웃</button></div>
+    <div class="row" style="justify-content:flex-end;margin-top:6px"><a class="sub" href="../" style="margin-right:auto;color:#fff">← 노래방으로</a><button class="g" onclick="logout()">로그아웃</button></div>
     <div class="menu" id="menu"></div>
     <div id="pane"></div>
   </div>
