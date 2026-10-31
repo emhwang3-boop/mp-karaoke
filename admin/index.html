@@ -82,7 +82,7 @@ function login(){ var v=$("pw").value; if(v) PW=v; if(!PW){ $("gmsg").textConten
     try{ sessionStorage.setItem("mpkadm",PW); }catch(e){} $("pw").value=""; $("gate").hidden=true; $("app").hidden=false; menu(); show("login",1);
   }).catch(function(e){ PW=""; try{ sessionStorage.removeItem("mpkadm"); }catch(x){} $("gmsg").innerHTML='<span class="err">'+errTx(e)+'</span>'; }); }
 function logout(){ PW=""; try{ sessionStorage.removeItem("mpkadm"); }catch(e){} location.reload(); }
-var MENU=[["login","로그인 MIS","계정 수·새 가입·최근 로그인"],["use","노래방 이용 MIS","곡별 재생·매출·협회 CSV · 사이트별"],["sale","곡 이용권 판매·잔액 (지난 판매)","지난 주문·계정별 잔여 곡 (새 판매 없음)"],["refund","환불 도구","요청 → 자동 계산 → 환불 처리"],["point","포인트","지갑·환불 요청·만료 알림·설정"],["aiv","AI 영상","가격·하루 한도·오늘 생성 수·최근 작업"],["pass","이용권","가격 1·3·6·12개월 · 이용 중 계정"],["chal","챌린지","곡·기간·제목 등록 / 종료 · 지난 기록"],["dor","도란도란","요금·진행 중 방·신고·이번 달 사용량"],["deco","방 꾸미기","장소·소품·세트 가격 · 오늘 판매"],["near","주변 노래 친구","동의·보이기·초대·차단·신고 · 위치 기록 · 수동 성인 인증"],["visit","방문 MIS","누적·오늘 방문자 (노래방 사이트)"],["adm","관리자 도구 MIS","로그인 기록·비밀번호 바꾸기"]];
+var MENU=[["login","로그인 MIS","계정 수·새 가입·최근 로그인"],["use","노래방 이용 MIS","곡별 재생·매출·협회 CSV · 사이트별"],["sale","곡 이용권 판매·잔액 (지난 판매)","지난 주문·계정별 잔여 곡 (새 판매 없음)"],["refund","환불 도구","요청 → 자동 계산 → 환불 처리"],["point","포인트","지갑·환불 요청·만료 알림·설정"],["aiv","AI 영상","가격·하루 한도·오늘 생성 수·최근 작업"],["pass","이용권","가격 1·3·6·12개월 · 이용 중 계정"],["chal","챌린지","곡·기간·제목 등록 / 종료 · 지난 기록"],["dor","도란도란","요금·진행 중 방·신고·이번 달 사용량"],["deco","방 꾸미기","장소·소품·세트 가격 · 오늘 판매"],["near","주변 노래 친구 · 성인 인증","성인 인증 관문 스위치 · 동의·보이기·초대·차단·신고 · 위치 기록 · 수동 성인 인증"],["visit","방문 MIS","누적·오늘 방문자 (노래방 사이트)"],["adm","관리자 도구 MIS","로그인 기록·비밀번호 바꾸기"]];
 function menu(){ $("app").appendChild($("pane")); $("menu").innerHTML=MENU.map(function(m){ return '<button data-k="'+m[0]+'" onclick="show(this.dataset.k)"><b>'+esc(m[1])+'</b><small>'+esc(m[2])+'</small></button>'; }).join(""); }
 // 아코디언 (사장님 10-31 「고쳐」) — 고른 칸 내용은 그 카드 바로 밑에 펼치고 나머지 카드는 아래로 · 다른 카드 = 앞 칸 접고 새 칸 · 같은 카드 다시 = 접기 · 펼치면 그 카드를 화면 맨 위로
 var OPEN="";
@@ -279,7 +279,7 @@ function drSave(){ var b={dor:parseInt($("drD").value,10),dorx:parseInt($("drX")
   if(!confirm("도란도란 요금을 저장할까요?\n만들기 "+b.dor.toLocaleString()+"P · 연장 "+b.dorx.toLocaleString()+"P · 우리끼리 노래 방 "+b.room.toLocaleString()+"P")) return;
   api("/shop/kadmin/ptcfg",{method:"POST",body:JSON.stringify(b)}).then(function(j){ if(!j.ok) throw new Error(j.err); alert("저장했습니다."); drLoad(); }).catch(function(e){ alert(errTx(e).replace(/<[^>]+>/g,"")); }); }
 // ── 방 꾸미기 (10-31) — 허브 GET/POST /shop/kadmin/deco · 가격 100P 단위(끝자리 900 안 됨) · 세트는 낱개 합보다 싸게 · 오늘·최근 7일 판매
-var DCC={place:"장소",furniture:"가구",decor:"장식",food:"먹거리",party:"노래방",outdoor:"야외",pet:"동물"}, DCJ=null;
+var DCC={place:"장소",furniture:"가구",decor:"장식",bouquet:"꽃다발",food:"먹거리",party:"노래방",outdoor:"야외",pet:"동물"}, DCJ=null;
 function dcPOk(v){ return Number.isInteger(v)&&v>=0&&v<=100000&&v%100===0&&v%1000!==900; }
 function dcLoad(){ api("/shop/kadmin/deco").then(function(j){ if(!j.ok) throw new Error(j.err); DCJ=j; var c=j.cfg, t=j.today||{}, nm={};
   j.items.forEach(function(x){ nm[x.k]=x.nm; }); j.sets.forEach(function(x){ nm[x.k]="세트 · "+x.nm; });
@@ -339,15 +339,20 @@ function vsLoad(){ fetch(HUB+"/hc?s=kara&n=0&geo=1",{cache:"no-store"}).then(fun
 // ── 관리자 도구 MIS — 허브 /kadm/log · 비밀번호 바꾸기 /kadminpw ──
 var WHY={login:"로그인",bad:"비밀번호 틀림",locked:"잠긴 동안 시도",noinit:"설정 전",init:"처음 설정",pwchange:"비밀번호 바꿈",reset:"비상 복구"};
 // ── 주변 노래 친구 (10-31) — 허브 /near/admin (x-kadmin) · 동의·보이기·초대·차단·신고 · 위치 기록(6개월) · 수동 성인 인증
+//   「성인 인증 관문」(10-31 사장님 「맨 처음 로고 뜬 다음에」) — POST /near/admin {op:"gate",on} · 켜기는 본인인증 업체(PASS·NICE) 열쇠가 다 있을 때만 · 안 되면 허브가 까닭(why)
 var NRW={abuse:"욕설·괴롭힘",sexual:"음란·성적 행위",violence:"폭력·위협",spam:"광고·도배",minor:"미성년자 보호",other:"기타"};
-var NRA={consent:"동의",withdraw:"동의 철회",on:"보이기 켬",upd:"보이기 연장",off:"보이기 끔",exp:"24시간 끝",list:"목록 이용",inv:"초대",acc:"초대 수락",adult:"성인 인증",unadult:"성인 인증 해제"};
+var NRA={gate_on:"성인 인증 관문 켬",gate_off:"성인 인증 관문 끔",consent:"동의",withdraw:"동의 철회",on:"보이기 켬",upd:"보이기 연장",off:"보이기 끔",exp:"24시간 끝",list:"목록 이용",inv:"초대",acc:"초대 수락",adult:"성인 인증",unadult:"성인 인증 해제"};
 function nrLoad(){ api("/near/admin?op=sum").then(function(j){ if(!j.ok) throw new Error(j.err); var s=j.stat||{};
-  $("pane").innerHTML='<div class="card"><b>주변 노래 친구</b><div class="msg">19세 이상 성인 인증 계정만 · 「내 위치 보이기」 켠 사람끼리만 보임(24시간) · 위치는 약 1km로 줄여 저장, 거리 구간(1·3·10km)만 표시 · 위치기반서비스사업 신고 제'+esc(j.lbs)+'호<br>'
-   +'본인인증 업체 '+(j.prov?'연결됨 ('+esc(j.prov)+')':'<span class="err">없음</span> — 계약 뒤 npx wrangler secret put IDV_PROVIDER (예: portone) + 업체 열쇠. 그 전에는 아래 「수동 성인 인증」으로만 켭니다 (손님이 본인인증 단추를 누르면 「본인인증을 진행할 수 없습니다. 고객센터로 문의해 주세요」)')+'</div>'
+  var g=j.gate||{on:0}, ge=!!j.gateEff;
+  $("pane").innerHTML='<div class="card"><b>성인 인증 관문</b><div class="msg">켜면 노래방 사이트·StageSong 앱·투어앱 노래방을 열 때 로고 다음에 「StageSong은 만 19세 이상 이용가입니다」 화면이 뜨고, 본인인증(PASS·휴대폰)을 마친 사람만 들어옵니다. 기기마다 1년·로그인 계정마다 한 번. 끄면 화면 없이 바로 노래방.</div>'
+   +'<div class="row" style="margin-top:8px"><label style="font-weight:800"><input type="checkbox" id="nrG"'+(g.on?' checked':'')+(!j.prov&&!g.on?' disabled':'')+' onchange="nrGate(this.checked)"> 성인 인증 관문</label> <span class="'+(ge?'ok':'msg')+'">'+(ge?'지금 켜져 있음 — 손님에게 화면이 뜹니다':g.on?'스위치는 켜져 있으나 업체가 준비되지 않아 화면이 뜨지 않습니다':'꺼져 있음 — 화면이 뜨지 않습니다')+'</span>'+(g.at?' <small class="msg">(마지막 변경 '+kdt(g.at)+')</small>':'')+'</div>'
+   +(j.prov?'':'<div class="msg" style="margin-top:6px"><span class="err">켤 수 없습니다</span> — '+esc(j.provWhy||"본인인증 업체 없음")+'</div>')+'<div id="nrGm" class="msg"></div></div>'
+   +'<div class="card"><b>주변 노래 친구</b><div class="msg">로그인 계정만(성인 인증은 위 「성인 인증 관문」에서 앱 입장 때 · 관문이 켜져 있으면 성인 인증 계정만) · 「내 위치 보이기」 켠 사람끼리만 보임(24시간) · 위치는 약 1km로 줄여 저장, 거리 구간(1·3·10km)만 표시 · 위치기반서비스사업 신고 제'+esc(j.lbs)+'호<br>'
+   +'본인인증 업체 '+(j.prov?'연결됨 ('+esc(j.prov)+')':'<span class="err">없음</span> — 계약 뒤 npx wrangler secret put IDV_PROVIDER (portone 또는 nice) + 업체 열쇠 (자세한 이름은 허브 idv.js 맨 위). 그 전에는 예외만 아래 「수동 성인 인증」으로')+'</div>'
    +'<div class="tiles">'+tile(j.consents,"위치 이용 동의 계정")+tile(j.visible,"지금 보이는 사람")+tile(j.adults,"성인 인증 계정")+tile(j.pending,"대기 중인 초대")+tile(s.inv||0,"보낸 초대(누적)")+tile((s.acc||0)+" / "+(s.dec||0),"수락 / 거절")+tile((s.exp||0)+" / "+(s.fail||0),"만료 / 실패")+tile(j.blocks,"차단")+tile(s.rep||0,"신고(누적)")+tile(j.logs,"위치 기록 ("+j.keepDays+"일 보관)")+'</div></div>'
-   +'<div class="card"><b>수동 성인 인증</b><div class="msg">본인인증 업체가 붙기 전까지 관리자가 직접 켭니다. StageSong ID(스테이지 닉네임)로 찾습니다. 태어난 해는 선택(넣으면 19세 이상인지 확인).</div>'
+   +'<div class="card"><b>수동 성인 인증</b><div class="msg">예외(본인인증이 안 되는 손님 등)만 관리자가 직접 켭니다. StageSong ID(스테이지 닉네임)로 찾습니다. 태어난 해는 선택(넣으면 19세 이상인지 확인).</div>'
    +'<div class="row" style="margin-top:6px">ID <input id="nrN" style="width:160px"> 태어난 해 <input id="nrY" type="number" min="1900" max="2030" style="width:90px"> <button onclick="nrAdult(1)">성인 인증 켜기</button><button class="g" onclick="nrAdult(0)">해제</button></div><div id="nrAm" class="msg"></div>'
-   +'<div class="tw"><table><tr><th class="l">ID</th><th>태어난 해</th><th>방법</th><th>시각</th></tr>'+((j.adultList||[]).map(function(a){ return '<tr><td class="l">'+esc(a.nick||"-")+'</td><td>'+esc(a.y||"-")+'</td><td>'+esc(a.by==="manual"?"수동":a.by)+'</td><td>'+kdt(a.at)+'</td></tr>'; }).join("")||'<tr><td class="l" colspan="4">없습니다.</td></tr>')+'</table></div></div>'
+   +'<div class="tw"><table><tr><th class="l">ID</th><th>태어난 해</th><th>방법</th><th>시각</th></tr>'+((j.adultList||[]).map(function(a){ return '<tr><td class="l">'+esc(a.nick||"-")+'</td><td>'+esc(a.y||"-")+'</td><td>'+esc(a.by==="manual"?"수동":/\/dev$/.test(a.by||"")?a.by.replace("/dev","")+" (기기 인증 → 로그인 때 옮김)":a.by)+'</td><td>'+kdt(a.at)+'</td></tr>'; }).join("")||'<tr><td class="l" colspan="4">없습니다.</td></tr>')+'</table></div></div>'
    +'<div class="card"><b>신고 ('+(j.reports||[]).length+')</b><div class="tw"><table><tr><th>시각</th><th class="l">신고한 사람</th><th class="l">신고된 사람</th><th class="l">사유</th><th class="l">내용</th><th>상태</th></tr>'
    +((j.reports||[]).map(function(r){ return '<tr><td>'+esc(r.at)+'</td><td class="l">'+esc(r.bnick||"-")+'</td><td class="l">'+esc(r.tnick||"-")+'<br><small>'+esc(r.tpub)+'</small></td><td class="l">'+esc(NRW[r.why]||r.why)+'</td><td class="l">'+esc(r.memo||"")+'</td><td>'
      +(r.st==="done"?'처리 완료 <button class="g" onclick="nrRep(\''+esc(r.k)+'\',\'new\')">되돌리기</button>':'<button onclick="nrRep(\''+esc(r.k)+'\',\'done\')">처리 완료</button>')+'</td></tr>'; }).join("")||'<tr><td class="l" colspan="6">없습니다.</td></tr>')+'</table></div></div>'
@@ -361,6 +366,9 @@ function nrLog(){ var q=($("nrLq")&&$("nrLq").value||"").trim(), e=$("nrLo"); if
 function nrAdult(on){ var n=($("nrN").value||"").trim(), y=($("nrY").value||"").trim(), m=$("nrAm"); if(!n){ m.innerHTML='<span class="err">ID 를 넣어 주세요.</span>'; return; }
   if(!confirm(n+" 계정의 성인 인증을 "+(on?"켤까요?":"해제할까요?"))) return;
   api("/near/admin",{method:"POST",body:JSON.stringify({op:"adult",nick:n,y:y?+y:0,ok:on?1:0})}).then(function(j){ if(!j.ok){ m.innerHTML='<span class="err">'+(j.err==="nick"?"그 ID 를 찾지 못했습니다(로그인한 계정의 ID 만).":j.err==="y"?"19세 미만인 태어난 해입니다.":esc(j.err))+'</span>'; return; } nrLoad(); }).catch(function(x){ m.innerHTML='<span class="err">'+errTx(x)+'</span>'; }); }
+function nrGate(on){ var m=$("nrGm"), cb=$("nrG");
+  if(!confirm(on?"성인 인증 관문을 켤까요?\n손님이 노래방을 열 때 본인인증 화면이 뜹니다.":"성인 인증 관문을 끌까요?\n본인인증 화면 없이 바로 노래방이 열립니다.")){ if(cb) cb.checked=!on; return; }
+  api("/near/admin",{method:"POST",body:JSON.stringify({op:"gate",on:on?1:0})}).then(function(j){ if(!j.ok){ if(cb) cb.checked=!on; m.innerHTML='<span class="err">켜지 못했습니다 — '+esc(j.why||j.err)+'</span>'; return; } nrLoad(); }).catch(function(x){ if(cb) cb.checked=!on; m.innerHTML='<span class="err">'+errTx(x)+'</span>'; }); }
 function nrRep(k,st){ api("/near/admin",{method:"POST",body:JSON.stringify({op:"rep",k:k,st:st})}).then(function(j){ if(!j.ok) throw new Error(j.err); nrLoad(); }).catch(function(e){ alert(errTx(e).replace(/<[^>]+>/g,"")); }); }
 function adLoad(){ api("/kadm/log?n=300").then(function(j){ if(!j.ok) throw new Error(j.err); var it=j.items||[], lk=j.lock||{};
   var ok=it.filter(function(x){ return x.why==="login"; }).length, bad=it.filter(function(x){ return !x.ok; }).length;
