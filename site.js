@@ -56,6 +56,17 @@ new MutationObserver(function(ms){ for(var i=0;i<ms.length;i++) for(var j=0;j<ms
 // ── 공유 링크로 들어온 손님 화면 ?v=<영상id> (사장님 10-30) — 첫 로고 화면 건너뛰고 영상 카드 한 장
 //   누구나 · 허브 /kst/pv (열쇠 없이) — 전체 공개만 영상, 팔로워만·우리끼리는 잠김 안내
 var VQ=(location.search.match(/[?&]v=([0-9a-f]{16})(?![0-9a-z])/i)||[])[1]||""; VQ=VQ.toLowerCase();
+// 단체 AI 사진 공유 링크 ?gp=<사진id> (10-31) — 사진 한 장 + 「AI 생성」 + 노래방 입장·앱 설치 (열쇠 없이 허브 /kst/ai/<id>)
+var GQ=(location.search.match(/[?&]gp=([0-9a-f]{16})(?![0-9a-z])/i)||[])[1]||""; GQ=GQ.toLowerCase(); if(GQ&&!VQ) VQ="gp";
+var GT={hd:{ko:"단체 AI 사진",en:"Group AI photo",ja:"AI集合写真",zhs:"AI 合影",zht:"AI 合影",es:"Foto de grupo con IA"},ai:{ko:"AI 생성",en:"AI-generated",ja:"AI生成",zhs:"AI生成",zht:"AI生成",es:"Generado por IA"},
+ go:{ko:"노래방 입장",en:"Open karaoke",ja:"カラオケを開く",zhs:"打开练歌房",zht:"開啟練歌房",es:"Abrir karaoke"},no:{ko:"해당 사진이 존재하지 않아요.",en:"This photo isn't available.",ja:"写真が見つかりません。",zhs:"找不到该照片。",zht:"找不到該照片。",es:"Esta foto no está disponible."}};
+function gPage(){ var pre=document.getElementById("pre"); if(pre) pre.style.display="none"; var o=document.getElementById("karV"); if(o) o.remove(); o=document.createElement("div"); o.id="karV"; document.body.appendChild(o);
+  o.innerHTML='<div class="vin"><div class="vhd"><img src="logo.png" alt=""><div><b>Money Puzzle</b><small>StageSong</small></div></div><h2 class="vt">'+esc(L(GT.hd))+'</h2><div style="position:relative"><img class="vv" style="display:block;height:auto;object-fit:contain" src="'+esc(HUB+"/kst/ai/"+GQ)+'" alt=""><span style="position:absolute;right:8px;top:8px;background:rgba(0,0,0,.5);color:#fff;font-size:12px;font-weight:800;padding:2px 8px;border-radius:7px">'+esc(L(GT.ai))+'</span></div>'
+    +'<div class="vbt"><button type="button" class="vgo">'+esc(L(GT.go))+'</button>'+(isApp()?'':'<button type="button" class="vins">'+esc(L(TX.inst))+'</button>')+'</div></div>';
+  var im=o.querySelector("img.vv"); im.onerror=function(){ im.parentNode.outerHTML='<p class="vmsg">'+esc(L(GT.no))+'</p>'; };
+  o.querySelector(".vgo").onclick=function(){ try{ ntap("kara_site","gp_go"); }catch(e){} VQ=""; GQ=""; try{ var q=location.search.slice(1).split("&").filter(function(x){ return !/^gp=/i.test(x); }).join("&"); history.replaceState(history.state,"",location.pathname+(q?"?"+q:"")+location.hash); }catch(e){} o.remove(); T0=0; start(); };
+  var ib=o.querySelector(".vins"); if(ib) ib.onclick=function(){ vInst(); };
+  try{ ntap("kara_site","gp_open"); }catch(e){} }
 var VT={sing:{ko:"{n}님의 노래",en:"Sung by {n}",ja:"{n}さんの歌",zhs:"{n} 的演唱",zht:"{n} 的演唱",es:"Cantada por {n}"},
  try:{ko:"나도 도전",en:"Sing it myself",ja:"自分も歌ってみる",zhs:"我也来唱",zht:"我也來唱",es:"Cantar yo también"},
  lkF:{ko:"팔로우하면 시청할 수 있어요",en:"Follow to watch this video",ja:"フォローすると見られます",zhs:"关注后即可观看",zht:"追蹤後即可觀看",es:"Sigue a esta persona para verlo"},
@@ -67,7 +78,7 @@ var VT={sing:{ko:"{n}님의 노래",en:"Sung by {n}",ja:"{n}さんの歌",zhs:"{
 function vDev(){ var d=""; try{ d=localStorage.getItem("mpv_dev")||""; if(!/^[0-9a-f]{16,32}$/.test(d)){ d=Array.prototype.map.call(crypto.getRandomValues(new Uint8Array(12)),function(v){ return ("0"+v.toString(16)).slice(-2); }).join(""); localStorage.setItem("mpv_dev",d); } }catch(e){} return d; }
 function vInst(){ var ua=navigator.userAgent||""; if(!/KAKAOTALK|FBAN|FBAV|Instagram|NAVER\(inapp|DaumApps| Line\//i.test(ua)&&(instEv||isIOS())){ instGo(); return; }
   location.href=location.origin+"/?install=1"; }   // 앱 안 브라우저 등 = ?install=1 흐름(바깥 브라우저로 → 설치 창)
-function vPage(){ var pre=document.getElementById("pre"); if(pre) pre.style.display="none"; var o=document.getElementById("karV"); if(o) o.remove();
+function vPage(){ if(GQ){ gPage(); return; } var pre=document.getElementById("pre"); if(pre) pre.style.display="none"; var o=document.getElementById("karV"); if(o) o.remove();
   o=document.createElement("div"); o.id="karV"; document.body.appendChild(o);
   var draw=function(j,stt){ var h='<div class="vin"><div class="vhd"><img src="logo.png" alt=""><div><b>Money Puzzle</b><small>StageSong</small></div></div>', nm=esc((j&&j.nick)||"guest");
     if(stt==="lo") h+='<p class="vmsg">'+esc(L(VT.lo))+'</p>';
