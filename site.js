@@ -153,10 +153,10 @@ function dPage(){ var pre=document.getElementById("pre"); if(pre) pre.style.disp
   try{ ntap("kara_site","dor_open"); }catch(e){} }
 var DJ=false; function dJoin(){ if(DJ) return; var t=dTok(); if(!t) return; var n=0; DJ=true;
   (function w(){ if(document.getElementById("karBox")&&window.karDorJoin){ setTimeout(function(){ try{ localStorage.removeItem("kdor_inv"); }catch(e){} window.karDorJoin(t); },300); return; } if(++n<60) setTimeout(w,250); else DJ=false; })(); }
-// 공유·초대 주소로 바로 온 화면도 성인 인증 관문을 먼저 — 순서: (로고) → 성인 인증 → 노래방 · 노래방 본 화면은 karOpen 이 관문을 거친다 (karaoke.js kGate · 관리자 「성인 인증 관문」이 꺼져 있으면 그냥 지나감, 10-31)
+// 공유·초대 주소로 바로 온 화면도 성인 인증 관문(10-31 밤부터 만 15세 이상 나이 인증)을 먼저 — 순서: (로고) → 나이 인증 → 노래방 · 노래방 본 화면은 karOpen 이 관문을 거친다 (karaoke.js kGate · 관리자 「성인 인증 관문」이 꺼져 있으면 그냥 지나감, 10-31)
 function gt(f){ return function(){ if(window.karGate) window.karGate(f); else f(); }; }
 var vPageG=gt(vPage), rPageG=gt(rPage), cPageG=gt(cPage), dPageG=gt(dPage);
-var T0=Date.now(), PRE_MS=1500;   // 첫 화면 = 로고+「Money Puzzle / StageSong」 1.5초 → (성인 인증 관문) → 노래방 (사장님 10-31 밤 「로고만 화면 삭제」)
+var T0=Date.now(), PRE_MS=1500;   // 첫 화면 = 로고+「Money Puzzle / StageSong」 1.5초 → (나이 인증 관문 · 만 15세 이상) → 노래방 (사장님 10-31 밤 「로고만 화면 삭제」)
 (function(){ var t=document.getElementById("preT"); if(t) t.style.visibility="visible"; })();
 function start(){ if(VQ||RP||CP||DP) return; if((RQ||CQ||MQ||DQ)&&rOwn()) T0=0; var w=PRE_MS-(Date.now()-T0); if(w>0&&!document.getElementById("karBox")){ clearTimeout(start._t); start._t=setTimeout(start,w); return; }
   var pre=document.getElementById("pre"); if(pre) pre.style.display="none";
