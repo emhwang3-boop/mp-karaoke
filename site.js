@@ -142,7 +142,10 @@ function dPage(){ var pre=document.getElementById("pre"); if(pre) pre.style.disp
   try{ ntap("kara_site","dor_open"); }catch(e){} }
 var DJ=false; function dJoin(){ if(DJ) return; var t=dTok(); if(!t) return; var n=0; DJ=true;
   (function w(){ if(document.getElementById("karBox")&&window.karDorJoin){ setTimeout(function(){ try{ localStorage.removeItem("kdor_inv"); }catch(e){} window.karDorJoin(t); },300); return; } if(++n<60) setTimeout(w,250); else DJ=false; })(); }
-var T0=Date.now(), PRE_MS=1500;   // 첫 화면 = 로고+「Money Puzzle / StageSong」 1.5초 → 노래방 (사장님 10-31 밤 「로고만 화면 삭제」)
+// 공유·초대 주소로 바로 온 화면도 성인 인증 관문을 먼저 — 순서: (로고) → 성인 인증 → 노래방 · 노래방 본 화면은 karOpen 이 관문을 거친다 (karaoke.js kGate · 관리자 「성인 인증 관문」이 꺼져 있으면 그냥 지나감, 10-31)
+function gt(f){ return function(){ if(window.karGate) window.karGate(f); else f(); }; }
+var vPageG=gt(vPage), rPageG=gt(rPage), cPageG=gt(cPage), dPageG=gt(dPage);
+var T0=Date.now(), PRE_MS=1500;   // 첫 화면 = 로고+「Money Puzzle / StageSong」 1.5초 → (성인 인증 관문) → 노래방 (사장님 10-31 밤 「로고만 화면 삭제」)
 (function(){ var t=document.getElementById("preT"); if(t) t.style.visibility="visible"; })();
 function start(){ if(VQ||RP||CP||DP) return; if((RQ||CQ||MQ||DQ)&&rOwn()) T0=0; var w=PRE_MS-(Date.now()-T0); if(w>0&&!document.getElementById("karBox")){ clearTimeout(start._t); start._t=setTimeout(start,w); return; }
   var pre=document.getElementById("pre"); if(pre) pre.style.display="none";
@@ -151,10 +154,10 @@ function start(){ if(VQ||RP||CP||DP) return; if((RQ||CQ||MQ||DQ)&&rOwn()) T0=0; 
   try{ ntap("kara_site","tap"); }catch(e){} }
 // karaoke.js 는 ?karres= (토스에서 돌아옴)이면 0.7초 뒤 스스로 연다 — 그때는 먼저 열지 않는다
 if(/[?&](karres|kptres)=/.test(location.search)) setTimeout(function(){ var pre=document.getElementById("pre"); if(pre) pre.style.display="none"; if(!document.getElementById("karBox")) start(); },1500);
-else if(VQ){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",vPage); else vPage(); }
-else if(RP){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",rPage); else rPage(); }
-else if(CP){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",cPage); else cPage(); }
-else if(DP){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",dPage); else dPage(); }
+else if(VQ){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",vPageG); else vPageG(); }
+else if(RP){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",rPageG); else rPageG(); }
+else if(CP){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",cPageG); else cPageG(); }
+else if(DP){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",dPageG); else dPageG(); }
 else if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",start); else start();
 // 노래방 닫기(뒤로가기 등)로 화면이 비면 다시 연다 — 이 사이트는 노래방뿐
 setInterval(function(){ if(!VQ&&!RP&&!CP&&!DP&&!document.getElementById("karBox")&&!/[?&](karres|kptres)=/.test(location.search)) start(); },1500);
