@@ -59,7 +59,7 @@ var VQ=(location.search.match(/[?&]v=([0-9a-f]{16})(?![0-9a-z])/i)||[])[1]||""; 
 var VT={sing:{ko:"{n}님의 노래",en:"Sung by {n}",ja:"{n}さんの歌",zhs:"{n} 的演唱",zht:"{n} 的演唱",es:"Cantada por {n}"},
  try:{ko:"나도 도전",en:"Sing it myself",ja:"自分も歌ってみる",zhs:"我也来唱",zht:"我也來唱",es:"Cantar yo también"},
  lkF:{ko:"팔로우하면 시청할 수 있어요",en:"Follow to watch this video",ja:"フォローすると見られます",zhs:"关注后即可观看",zht:"追蹤後即可觀看",es:"Sigue a esta persona para verlo"},
- lkR:{ko:"우리끼리 방 멤버만 시청할 수 있어요",en:"Only members of this Just-us room can watch",ja:"「仲間だけ」ルームのメンバーだけが見られます",zhs:"仅小圈子房间成员可观看",zht:"僅小圈子房間成員可觀看",es:"Solo los miembros de esta sala «Solo nosotros» pueden verlo"},
+ lkR:{ko:"우리끼리 노래 방 멤버만 시청할 수 있어요",en:"Only members of this Just Us Karaoke room can watch",ja:"「仲間だけカラオケ」ルームのメンバーだけが見られます",zhs:"仅小圈子房间成员可观看",zht:"僅小圈子房間成員可觀看",es:"Solo los miembros de esta sala «Solo nosotros» pueden verlo"},
  no:{ko:"해당 영상이 존재하지 않아요.",en:"This video isn't available.",ja:"動画が見つかりません。",zhs:"找不到该视频。",zht:"找不到該影片。",es:"Este vídeo no está disponible."},
  lo:{ko:"불러오는 중…",en:"Loading…",ja:"読み込み中…",zhs:"加载中…",zht:"載入中…",es:"Cargando…"},
  sc:{ko:"노래 점수",en:"Singing score",ja:"歌唱得点",zhs:"演唱得分",zht:"演唱得分",es:"Puntuación"},
@@ -86,7 +86,7 @@ function vPage(){ var pre=document.getElementById("pre"); if(pre) pre.style.disp
   try{ ntap("kara_site","pv_open"); }catch(e){} }
 // ── 우리끼리 방 카톡 초대 링크 ?rinv=<토큰> (사장님 10-31) — 토큰은 localStorage "kst_rinv" {tok,at} 에 보관(설치 뒤·오픈 뒤에도 쓰게)
 //   (10-31 출시판) 누구나 — 브라우저(앱 밖)는 초대 카드(「앱 설치」·「노래방 입장」) → 노래방 열고 karRoomJoin(로그인 전이면 로그인부터 → 허브 join → 스테이지 › 우리끼리 › 그 방) · 앱 안은 바로 입장
-var RT={hd:{ko:"우리끼리 방 초대",en:"Just-us room invitation",ja:"「仲間だけ」ルームへの招待",zhs:"小圈子房间邀请",zht:"小圈子房間邀請",es:"Invitación a una sala «Solo nosotros»"},
+var RT={hd:{ko:"우리끼리 노래 방 초대",en:"Just Us Karaoke room invitation",ja:"「仲間だけカラオケ」ルームへの招待",zhs:"小圈子K歌房邀请",zht:"小圈子K歌房邀請",es:"Invitación a una sala «Solo nosotros Karaoke»"},
  soon:{ko:"노래방에 입장하면 초대받은 방에 바로 참여합니다",en:"Open the karaoke to join the room you were invited to",ja:"カラオケに入ると、招待されたルームにすぐ参加します",zhs:"进入练歌房即可直接加入受邀的房间",zht:"進入練歌房即可直接加入受邀的房間",es:"Abre el karaoke para unirte a la sala a la que te invitaron"},
  kar:{ko:"노래방 입장",en:"Open karaoke",ja:"カラオケを開く",zhs:"打开练歌房",zht:"開啟練歌房",es:"Abrir karaoke"}};
 var RQ=(location.search.match(/[?&]rinv=([A-Za-z0-9]{16})(?![A-Za-z0-9])/)||[])[1]||"";
@@ -108,7 +108,7 @@ var RJ=false; function rJoin(){ if(RJ||!rOwn()) return; var t=rTok(); if(!t||!wi
   RJ=true; (function w(){ if(document.getElementById("karBox")){ setTimeout(function(){ window.karRoomJoin(t); },300); return; } if(++n<60) setTimeout(w,250); else RJ=false; })(); }
 // ── 챌린지 초대 ?chal=<id> · 릴레이 차례 알림 ?room=<rid> (사장님 10-31) — 누구나: 브라우저는 초대 카드(「앱 설치」·「노래방 입장」) → 노래방 열고 그 챌린지·그 방 · 앱 안은 바로
 var CT={hd:{ko:"StageSong 챌린지 초대",en:"StageSong challenge invitation",ja:"StageSongチャレンジへの招待",zhs:"StageSong 挑战邀请",zht:"StageSong 挑戰邀請",es:"Invitación a un reto de StageSong"},
- rhd:{ko:"우리끼리 방 릴레이",en:"Just-us room relay",ja:"「仲間だけ」ルームのリレー",zhs:"小圈子房间接力",zht:"小圈子房間接力",es:"Relevo de la sala «Solo nosotros»"},
+ rhd:{ko:"우리끼리 노래 방 릴레이",en:"Just Us Karaoke room relay",ja:"「仲間だけカラオケ」ルームのリレー",zhs:"小圈子K歌房接力",zht:"小圈子K歌房接力",es:"Relevo de la sala «Solo nosotros Karaoke»"},
  soon:{ko:"노래방에 입장하면 바로 참여할 수 있습니다",en:"Open the karaoke to join right away",ja:"カラオケに入ると、すぐに参加できます",zhs:"进入练歌房即可直接参加",zht:"進入練歌房即可直接參加",es:"Abre el karaoke para participar ahora mismo"}};
 var CQ=((location.search.match(/[?&]chal=([0-9a-f]{12})(?![0-9a-z])/i)||[])[1]||"").toLowerCase(), MQ=((location.search.match(/[?&]room=([0-9a-f]{12})(?![0-9a-z])/i)||[])[1]||"").toLowerCase();
 if(CQ||MQ){ try{ var cq2=location.search.slice(1).split("&").filter(function(x){ return !/^(chal|room)=/i.test(x); }).join("&"); history.replaceState(history.state,"",location.pathname+(cq2?"?"+cq2:"")+location.hash); }catch(e){} }
@@ -123,21 +123,41 @@ function cPage(){ var pre=document.getElementById("pre"); if(pre) pre.style.disp
   try{ ntap("kara_site",CQ?"chal_open":"room_open"); }catch(e){} }
 var CJ=false; function cGo(){ if(CJ||!rOwn()||!(CQ||MQ)) return; var n=0; CJ=true;
   (function w(){ if(document.getElementById("karBox")&&(CQ?window.karChal:window.karRoomOpen)){ setTimeout(function(){ if(CQ) window.karChal(CQ); else window.karRoomOpen(MQ); CQ=""; MQ=""; },300); return; } if(++n<60) setTimeout(w,250); else CJ=false; })(); }
-var T0=Date.now(), PRE_MS=5000;   // 첫 화면 = 로고만 3초 → 로고+「Money Puzzle / StageSong」 4초 → 노래방 (사장님 10-30)
-setTimeout(function(){ var t=document.getElementById("preT"); if(t) t.style.visibility="visible"; },2000);
-function start(){ if(VQ||RP||CP) return; if((RQ||CQ||MQ)&&rOwn()) T0=0; var w=PRE_MS-(Date.now()-T0); if(w>0&&!document.getElementById("karBox")){ clearTimeout(start._t); start._t=setTimeout(start,w); return; }
+// ── 도란도란(영상 사랑방) 초대 ?dor=<토큰> (사장님 10-31 밤) — 우리끼리 노래 초대(?rinv=)와 같은 방식 · 토큰은 localStorage "kdor_inv" {tok,at}
+//   브라우저(앱 밖) = 초대 카드(「앱 설치」·「노래방 입장」) → 노래방 열고 karDorJoin(로그인 전이면 로그인부터 → 입장 확인 → 사랑방) · 앱 안은 바로
+var DT={hd:{ko:"도란도란 초대",en:"Doran-doran video room invitation",ja:"ドランドラン（ビデオ談話室）への招待",zhs:"Doran-doran 视频聊天室邀请",zht:"Doran-doran 視訊聊天室邀請",es:"Invitación a la sala de video Doran-doran"},
+ soon:{ko:"노래방에 입장하면 초대받은 도란도란 방에 바로 참여합니다 · 카메라와 마이크를 사용합니다",en:"Open the karaoke to join the video room you were invited to. Your camera and mic will be used.",ja:"カラオケに入ると、招待されたドランドランにすぐ参加します。カメラとマイクを使用します",zhs:"进入练歌房即可直接加入受邀的视频聊天室，将使用摄像头和麦克风",zht:"進入練歌房即可直接加入受邀的視訊聊天室，將使用相機和麥克風",es:"Abre el karaoke para unirte a la sala de video. Se usarán tu cámara y micrófono."}};
+var DQ=(location.search.match(/[?&]dor=([A-Za-z0-9]{16})(?![A-Za-z0-9])/)||[])[1]||"";
+if(DQ){ try{ localStorage.setItem("kdor_inv",JSON.stringify({tok:DQ,at:Date.now()})); }catch(e){}
+  try{ var dq2=location.search.slice(1).split("&").filter(function(x){ return !/^dor=/i.test(x); }).join("&"); history.replaceState(history.state,"",location.pathname+(dq2?"?"+dq2:"")+location.hash); }catch(e){} }
+function dTok(){ try{ var x=JSON.parse(localStorage.getItem("kdor_inv")||"null"); if(x&&/^[A-Za-z0-9]{16}$/.test(x.tok||"")&&Date.now()-(+x.at||0)<2*86400000) return x.tok; localStorage.removeItem("kdor_inv"); }catch(e){} return ""; }
+var DP=!!(DQ&&!isApp()&&!window.Capacitor&&!VQ&&!RQ);
+function dPage(){ var pre=document.getElementById("pre"); if(pre) pre.style.display="none"; var o=document.getElementById("karV"); if(o) o.remove();
+  o=document.createElement("div"); o.id="karV"; document.body.appendChild(o);
+  o.innerHTML='<div class="vin"><div class="vhd"><img src="logo.png" alt=""><div><b>Money Puzzle</b><small>StageSong</small></div></div>'
+    +'<div class="vlk"><img src="img/kara/dor_l.png" alt=""><p>'+esc(L(DT.hd))+'</p><div class="vn">'+esc(L(DT.soon))+'</div></div>'
+    +'<div class="vbt">'+(isApp()?'':'<button type="button" class="vins">'+esc(L(TX.inst))+'</button>')+'<button type="button" class="vgo">'+esc(L(RT.kar))+'</button></div></div>';
+  var ib=o.querySelector(".vins"); if(ib) ib.onclick=function(){ try{ ntap("kara_site","dor_inst"); }catch(e){} vInst(); };
+  o.querySelector(".vgo").onclick=function(){ try{ ntap("kara_site","dor_kar"); }catch(e){} DP=false; o.remove(); T0=0; start(); };
+  try{ ntap("kara_site","dor_open"); }catch(e){} }
+var DJ=false; function dJoin(){ if(DJ) return; var t=dTok(); if(!t) return; var n=0; DJ=true;
+  (function w(){ if(document.getElementById("karBox")&&window.karDorJoin){ setTimeout(function(){ try{ localStorage.removeItem("kdor_inv"); }catch(e){} window.karDorJoin(t); },300); return; } if(++n<60) setTimeout(w,250); else DJ=false; })(); }
+var T0=Date.now(), PRE_MS=1500;   // 첫 화면 = 로고+「Money Puzzle / StageSong」 1.5초 → 노래방 (사장님 10-31 밤 「로고만 화면 삭제」)
+(function(){ var t=document.getElementById("preT"); if(t) t.style.visibility="visible"; })();
+function start(){ if(VQ||RP||CP||DP) return; if((RQ||CQ||MQ||DQ)&&rOwn()) T0=0; var w=PRE_MS-(Date.now()-T0); if(w>0&&!document.getElementById("karBox")){ clearTimeout(start._t); start._t=setTimeout(start,w); return; }
   var pre=document.getElementById("pre"); if(pre) pre.style.display="none";
   if(!document.getElementById("karBox")&&window.karOpen) karOpen("site");
-  rJoin(); cGo();
+  rJoin(); cGo(); dJoin();
   try{ ntap("kara_site","tap"); }catch(e){} }
 // karaoke.js 는 ?karres= (토스에서 돌아옴)이면 0.7초 뒤 스스로 연다 — 그때는 먼저 열지 않는다
 if(/[?&]karres=/.test(location.search)) setTimeout(function(){ var pre=document.getElementById("pre"); if(pre) pre.style.display="none"; if(!document.getElementById("karBox")) start(); },1500);
 else if(VQ){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",vPage); else vPage(); }
 else if(RP){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",rPage); else rPage(); }
 else if(CP){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",cPage); else cPage(); }
+else if(DP){ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",dPage); else dPage(); }
 else if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",start); else start();
 // 노래방 닫기(뒤로가기 등)로 화면이 비면 다시 연다 — 이 사이트는 노래방뿐
-setInterval(function(){ if(!VQ&&!RP&&!CP&&!document.getElementById("karBox")&&!/[?&]karres=/.test(location.search)) start(); },1500);
+setInterval(function(){ if(!VQ&&!RP&&!CP&&!DP&&!document.getElementById("karBox")&&!/[?&]karres=/.test(location.search)) start(); },1500);
 // 「앱 설치」 링크로 온 손님 — 안드로이드: 가운데 큰 「앱 설치」(브라우저 규칙상 한 번은 눌러야 함) · 아이폰: 홈 화면에 추가 안내 (투어앱과 같은 방식, 10-30)
 (function(){ var want=false; try{ want=sessionStorage.getItem("mpv_wantinst")==="1"; }catch(e){} if(!want||isApp()) return;
   var done=function(){ try{ sessionStorage.removeItem("mpv_wantinst"); }catch(e){} };
