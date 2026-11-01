@@ -332,7 +332,7 @@ function lvEnd(id){ if(confirm("이 방송을 바로 종료할까요?")) lvA({op
 function lvRep(k,st){ lvA({op:"repst",k:k,st:st}); }
 function lvPlay(id){ lvA({op:"recurl",id:id},function(j){ $("lvPlay").innerHTML='<video controls playsinline style="width:100%;max-height:50vh;background:#000" src="'+esc(j.url)+'"></video>'; }); }
 // ── 방 꾸미기 (10-31) — 허브 GET/POST /shop/kadmin/deco · 가격 100P 단위(끝자리 900 안 됨) · 세트는 낱개 합보다 싸게 · 오늘·최근 7일 판매
-var DCC={place:"장소",furniture:"가구",decor:"장식",bouquet:"꽃다발",food:"먹거리",party:"노래방",outdoor:"야외",pet:"동물"}, DCJ=null;
+var DCC={mkb:"마스크 기본",mkw:"마스크 여성용",mkm:"마스크 남성용",mka:"마스크 동물",mkh:"마스크 가발",mks:"마스크 세트·시즌",place:"장소",furniture:"가구",decor:"장식",bouquet:"꽃다발",food:"먹거리",party:"노래방",outdoor:"야외",pet:"동물"}, DCJ=null;
 function dcPOk(v){ return Number.isInteger(v)&&v>=0&&v<=100000&&v%100===0&&v%1000!==900; }
 function dcLoad(){ api("/shop/kadmin/deco").then(function(j){ if(!j.ok) throw new Error(j.err); DCJ=j; var c=j.cfg, t=j.today||{}, nm={};
   j.items.forEach(function(x){ nm[x.k]=x.nm; }); j.sets.forEach(function(x){ nm[x.k]="세트 · "+x.nm; });
