@@ -1,7 +1,7 @@
 {
- "name": "머니퍼즐 노래방 · Money Puzzle Karaoke",
- "short_name": "머니퍼즐 노래방",
- "description": "금영 노래방 공식 유튜브 노래방 영상과 곡 이용권 — 6개 언어",
+ "name": "StageSong",
+ "short_name": "StageSong",
+ "description": "StageSong — 노래방 녹화·게시·LIVE·영상 채팅 — 6개 언어",
  "id": "./",
  "start_url": "./?src=pwa",
  "scope": "./",
