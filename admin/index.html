@@ -333,7 +333,7 @@ function drLoad(){ api("/shop/kadmin/dor").then(function(j){ if(!j.ok) throw new
   $("pane").innerHTML='<div class="card"><b>도란도란</b><div class="msg">방장이 포인트로 방을 만들고(2시간) 초대 링크로만 입장 · 최대 9명 · 영상·소리는 Cloudflare Realtime(SFU)로만 오가고 녹화·저장하지 않습니다. 연장은 방 사람 누구나(누른 사람 결제).<br>'
    +'Realtime 앱 '+(j.rt?'연결됨':'<span class="err">없음 — npx wrangler secret put REALTIME_APP_ID · REALTIME_APP_TOKEN (없으면 방 만들기가 「연결하지 못했습니다」로 끝나고 포인트는 되돌림)</span>')+' · TURN '+(j.turn?'있음':'없음(선택)')+'</div>'
    +'<div class="tiles">'+tile(j.act||0,"진행 중인 방")+tile((u.rooms||0)+" / "+(u.ext||0),"이번 달 생성 / 연장")+tile((u.gb||0)+" GB","이번 달 예상 전송량")+tile("$"+(u.usd||0).toFixed(2),"이번 달 예상 요금")+'</div></div>'
-   +'<div class="card"><b>요금</b><div class="row" style="margin-top:6px">도란도란 만들기(2시간) <input type="number" id="drD" min="0" max="100000" step="10" value="'+c.dor+'" style="width:100px">P · 연장 2시간 <input type="number" id="drX" min="0" max="100000" step="10" value="'+c.dorx+'" style="width:100px">P · 우리끼리 노래 방 만들기 <input type="number" id="drR" min="0" max="100000" step="10" value="'+c.room+'" style="width:100px">P</div>'
+   +'<div class="card"><b>요금</b><div class="row" style="margin-top:6px">도란도란 만들기(2시간) <input type="number" id="drD" min="0" max="100000" step="10" value="'+c.dor+'" style="width:100px">P · 연장 2시간 <input type="number" id="drX" min="0" max="100000" step="10" value="'+c.dorx+'" style="width:100px">P · 우리끼리 노래 방 만들기 <input type="number" id="drR" min="0" max="100000" step="10" value="'+c.room+'" style="width:100px">P · 주변 노래 친구 내 위치 1시간 연장 <input type="number" id="drN" min="0" max="100000" step="10" value="'+(c.nearx!=null?c.nearx:3000)+'" style="width:100px">P</div>'
    +'<div class="msg">기본값: '+(j.def.dor||0).toLocaleString()+'P · '+(j.def.dorx||0).toLocaleString()+'P · '+(j.def.room||0).toLocaleString()+'P (0 = 무료) · 앱 화면의 결제 확인 창에 바로 반영됩니다.</div>'
    +'<div class="row" style="margin-top:8px"><button onclick="drSave()">요금 저장</button></div></div>'
    +'<div class="card"><b>월 사용량 추정</b><div class="msg">받는 영상 한 줄 '+j.kbps+'kbps(360p 영상+소리) 기준 추정 · 실제 청구는 Cloudflare 대시보드 Realtime 사용량이 기준입니다. 요금: 내보내기(egress) 월 '+(j.price.free||1000).toLocaleString()+'GB 무료(SFU·TURN 합산, 계정 전체), 넘으면 $'+j.price.usd+'/GB · 들어오는 쪽 무료.</div>'
@@ -344,9 +344,9 @@ function drLoad(){ api("/shop/kadmin/dor").then(function(j){ if(!j.ok) throw new
    +((j.reps||[]).map(function(r){ return '<tr><td>'+esc(r.at)+'</td><td class="l">'+esc(r.room)+'<br><small>방장 '+esc(r.host)+'</small></td><td class="l">'+esc(r.by)+'<br><small>'+esc(r.byU)+'</small></td><td class="l">'+esc(r.to)+(r.toOwn?' (방장)':'')+'<br><small>'+esc(r.toU)+'</small></td><td class="l">'+esc(DRW[r.why]||r.why)+'</td><td class="l">'+esc(r.memo||"")+'</td><td>'
      +(r.st==="done"?'처리 완료 <button class="g" onclick="drRep(\''+esc(r.k)+'\',\'new\')">되돌리기</button>':'<button onclick="drRep(\''+esc(r.k)+'\',\'done\')">처리 완료</button>')+'</td></tr>'; }).join("")||'<tr><td class="l" colspan="7">없습니다.</td></tr>')+'</table></div></div>';
  }).catch(fail); }
-function drSave(){ var b={dor:parseInt($("drD").value,10),dorx:parseInt($("drX").value,10),room:parseInt($("drR").value,10)}, ok=function(v){ return v>=0&&v<=100000&&v%10===0; };
-  if(!ok(b.dor)||!ok(b.dorx)||!ok(b.room)){ alert("값을 확인해 주세요 (0~100,000P · 10P 단위)."); return; }
-  if(!confirm("도란도란 요금을 저장할까요?\n만들기 "+b.dor.toLocaleString()+"P · 연장 "+b.dorx.toLocaleString()+"P · 우리끼리 노래 방 "+b.room.toLocaleString()+"P")) return;
+function drSave(){ var b={dor:parseInt($("drD").value,10),dorx:parseInt($("drX").value,10),room:parseInt($("drR").value,10),nearx:parseInt($("drN").value,10)}, ok=function(v){ return v>=0&&v<=100000&&v%10===0; };
+  if(!ok(b.dor)||!ok(b.dorx)||!ok(b.room)||!ok(b.nearx)){ alert("값을 확인해 주세요 (0~100,000P · 10P 단위)."); return; }
+  if(!confirm("도란도란 요금을 저장할까요?\n만들기 "+b.dor.toLocaleString()+"P · 연장 "+b.dorx.toLocaleString()+"P · 우리끼리 노래 방 "+b.room.toLocaleString()+"P · 내 위치 1시간 연장 "+b.nearx.toLocaleString()+"P")) return;
   api("/shop/kadmin/ptcfg",{method:"POST",body:JSON.stringify(b)}).then(function(j){ if(!j.ok) throw new Error(j.err); alert("저장했습니다."); drLoad(); }).catch(function(e){ alert(errTx(e).replace(/<[^>]+>/g,"")); }); }
 // ── 순위 시상 (11-01) — 허브 GET/POST /shop/kadmin/rank
 var RKN={w:"주간",m:"월간",y:"왕중왕"};
