@@ -78,7 +78,6 @@ if(/[?&]install=1(?![0-9a-z])/i.test(location.search)){ var iua=navigator.userAg
   if(/Android/i.test(iua)&&/FBAN|FBAV|FB_IAB|Instagram|NAVER\(inapp|DaumApps/i.test(iua)){ iext("intent://"+location.host+location.pathname+location.search+"#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url="+encodeURIComponent(ifull)+";end"); }
   try{ sessionStorage.setItem("mpv_wantinst","1"); }catch(x){}
   try{ var qsi=location.search.slice(1).split("&").filter(function(x){ return !/^(install|openExternalBrowser)=/i.test(x); }).join("&"); history.replaceState(history.state,"",location.pathname+(qsi?"?"+qsi:"")+location.hash); }catch(x){} }
-try{ if(/[?&]me=EM2410/i.test(location.search)) localStorage.setItem("mp_owner","1"); }catch(e){}   // 사장님 기기 표시 — 투어앱과 같은 방식 (노래방 사이트는 주소가 달라 따로 한 번)   // 투어앱(navi)과 구분 — 허브는 Origin 으로도 가른다
 var LANGS=["ko","en","ja","zhs","zht","es"], LBL={ko:"한국어",en:"English",ja:"日本語",zhs:"简体中文",zht:"繁體中文",es:"Español"};
 function langAuto(){ var n=String(navigator.language||""); if(/^ko/i.test(n)) return "ko"; if(/^ja/i.test(n)) return "ja"; if(/^es/i.test(n)) return "es"; if(/^zh/i.test(n)) return /hant|-tw|-hk|-mo/i.test(n)?"zht":"zhs"; return "en"; }
 var LANG="ko", _ql=((location.search.match(/[?&]lang=(ko|en|ja|zhs|zht|es)(?![A-Za-z])/i)||[])[1]||"").toLowerCase();
@@ -99,7 +98,7 @@ var PG_SITE={simple:true,aredir:location.origin+"/",W:{
 }};
 </script>
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"></script>
-<script src="karaoke.js?v=1102j"></script>
+<script src="karaoke.js?v=1102k"></script>
 <script src="pg.js?v=1031j1"></script>
 <script src="site.js?v=1031j1"></script>
 </body>
