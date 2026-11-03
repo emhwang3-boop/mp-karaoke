@@ -84,7 +84,7 @@ function login(){ var v=$("pw").value; if(v) PW=v; if(!PW){ $("gmsg").textConten
     try{ sessionStorage.setItem("mpkadm",PW); }catch(e){} $("pw").value=""; $("gate").hidden=true; $("app").hidden=false; menu(); show("login",1);
   }).catch(function(e){ PW=""; try{ sessionStorage.removeItem("mpkadm"); }catch(x){} $("gmsg").innerHTML='<span class="err">'+errTx(e)+'</span>'; }); }
 function logout(){ PW=""; try{ sessionStorage.removeItem("mpkadm"); }catch(e){} location.reload(); }
-var MENU=[["rank","순위 시상","진행 순위·회차별 1등·상금 지급·영상 제외·상금 금액"],["live","LIVE 방","진행 중 방송·신고·녹화·선물·오늘 비용"],["login","로그인 MIS","계정 수·새 가입·최근 로그인"],["use","노래방 이용 MIS","곡별 재생·매출·음저협 전송팀·영상팀 CSV · 사이트별"],["sale","옛 주문 기록 (지난 판매)","지난 주문 기록 (새 판매 없음)"],["refund","옛 주문 환불 도구","지난 주문의 환불 기록 · 새 환불은 「포인트」"],["point","포인트","지갑·환불 요청·만료 알림·설정"],["aiv","AI 영상","가격·하루 한도·오늘 생성 수·최근 작업"],["grp","단체 AI 사진","가격·1인 하루 한도·오늘 생성 수·원가 추정"],["pass","곡 가격","1곡·곡 묶음 가격 · 잔여 곡이 있는 계정"],["ev","이벤트","기간·무료 곡"],["safe","자동 감시","제재 기록·이의 신청·임계값·해제·오늘 비용"],["chal","챌린지","곡·기간·제목 등록 / 종료 · 지난 기록"],["dor","도란도란","요금·진행 중 방·신고·이번 달 사용량"],["deco","방 꾸미기","장소·소품·세트 가격 · 오늘 판매"],["near","주변 노래 친구 · 성인 인증","성인 인증 관문 스위치 · 동의·보이기·초대·차단·신고 · 위치 기록 · 수동 인증"],["visit","방문 MIS","누적·오늘 방문자 (노래방 사이트)"],["adm","관리자 도구 MIS","로그인 기록·비밀번호 바꾸기"]];
+var MENU=[["rank","순위 시상","진행 순위·회차별 1등·상금 지급·영상 제외·상금 금액"],["live","LIVE 방","진행 중 방송·신고·녹화·선물·오늘 비용"],["login","로그인 MIS","계정 수·새 가입·최근 로그인"],["use","노래방 이용 MIS","곡별 재생·매출·음저협 전송팀·영상팀 CSV · 사이트별"],["sale","옛 주문 기록 (지난 판매)","지난 주문 기록 (새 판매 없음)"],["refund","옛 주문 환불 도구","지난 주문의 환불 기록 · 새 환불은 「포인트」"],["point","포인트","지갑·환불 요청·만료 알림·설정"],["aiv","AI 영상","가격·하루 한도·오늘 생성 수·최근 작업"],["grp","단체 AI 사진","가격·1인 하루 한도·오늘 생성 수·원가 추정"],["pass","곡 가격","1곡·곡 묶음 가격 · 잔여 곡이 있는 계정"],["ev","이벤트","기간·무료 곡"],["safe","자동 감시","제재 기록·이의 신청·임계값·해제·오늘 비용"],["chal","챌린지","곡·기간·제목 등록 / 종료 · 지난 기록"],["dor","도란도란","요금·진행 중 방·신고·이번 달 사용량"],["deco","방 꾸미기","장소·소품·세트 가격 · 오늘 판매"],["voc","고객의 소리","첫 화면 아래 칸으로 받은 의견 · 최신순 · 시각(한국)·ID·내용"],["near","주변 노래 친구 · 성인 인증","성인 인증 관문 스위치 · 동의·보이기·초대·차단·신고 · 위치 기록 · 수동 인증"],["visit","방문 MIS","누적·오늘 방문자 (노래방 사이트)"],["adm","관리자 도구 MIS","로그인 기록·비밀번호 바꾸기"]];
 function menu(){ $("app").appendChild($("pane")); $("menu").innerHTML=MENU.map(function(m){ return '<button data-k="'+m[0]+'" onclick="show(this.dataset.k)"><b>'+esc(m[1])+'</b><small>'+esc(m[2])+'</small></button>'; }).join(""); }
 // 아코디언 (사장님 10-31 「고쳐」) — 고른 칸 내용은 그 카드 바로 밑에 펼치고 나머지 카드는 아래로 · 다른 카드 = 앞 칸 접고 새 칸 · 같은 카드 다시 = 접기 · 펼치면 그 카드를 화면 맨 위로
 var OPEN="";
@@ -92,7 +92,7 @@ function show(k,noScroll){ var M=$("menu"), P=$("pane"), btn=M.querySelector('bu
   if(OPEN===k){ OPEN=""; btn.classList.remove("on"); btn.setAttribute("aria-expanded","false"); P.hidden=true; P.innerHTML=""; return; }
   OPEN=k; [].forEach.call(M.querySelectorAll("button[data-k]"),function(b){ var on=b===btn; b.classList.toggle("on",on); b.setAttribute("aria-expanded",on?"true":"false"); });
   btn.insertAdjacentElement("afterend",P); P.hidden=false; P.innerHTML='<div class="card"><div class="msg">불러오는 중…</div></div>';
-  ({login:lgLoad,use:klLoad,sale:slLoad,refund:rfLoad,point:ptLoad,aiv:avLoad,grp:grLoad,pass:psLoad,ev:evLoad,safe:sfLoad,chal:chLoad,dor:drLoad,live:lvLoad,rank:rkLoad,deco:dcLoad,near:nrLoad,visit:vsLoad,adm:adLoad})[k]();
+  ({login:lgLoad,use:klLoad,sale:slLoad,refund:rfLoad,point:ptLoad,aiv:avLoad,grp:grLoad,pass:psLoad,ev:evLoad,safe:sfLoad,chal:chLoad,dor:drLoad,live:lvLoad,rank:rkLoad,deco:dcLoad,near:nrLoad,visit:vsLoad,adm:adLoad,voc:vcLoad})[k]();
   if(!noScroll) setTimeout(function(){ btn.scrollIntoView({block:"start",behavior:"smooth"}); },30); }
 function fail(e){ $("pane").innerHTML='<div class="card err">'+errTx(e)+'</div>'; if(e&&e.message==="admin") setTimeout(logout,1500); }
 
@@ -448,6 +448,12 @@ var WHY={login:"로그인",bad:"비밀번호 틀림",locked:"잠긴 동안 시�
 var NRW={abuse:"욕설·괴롭힘",sexual:"음란·성적 행위",violence:"폭력·위협",spam:"광고·도배",minor:"미성년자 보호",other:"기타"};
 var NRA={gate_on:"성인 인증 관문 켬",gate_off:"성인 인증 관문 끔",consent:"동의",withdraw:"동의 철회",on:"보이기 켬",upd:"보이기 연장",off:"보이기 끔",exp:"24시간 끝",list:"목록 이용",inv:"초대",acc:"초대 수락",adult:"나이 인증",unadult:"나이 인증 해제",wo_on:"여성에게만 보이기 켬",wo_off:"여성에게만 보이기 끔"};
 var NRSX={M:"남",F:"여"};
+// ── 고객의 소리 (11-03) — 허브 GET /shop/kadmin/voc (최신 200개 · before=시각 으로 더 보기)
+var VC={items:[],more:false};
+function vcLoad(bf){ api("/shop/kadmin/voc"+(bf?"?before="+bf:"")).then(function(j){ if(!j.ok) throw new Error(j.err); VC.items=bf?VC.items.concat(j.items||[]):(j.items||[]); VC.more=!!j.more;
+  $("pane").innerHTML='<div class="card"><b>고객의 소리</b><div class="msg">첫 화면 곡 목록 아래 칸으로 받은 의견 · 로그인한 사람만 · 1분에 1번·하루 5번 · 계정을 지우면 ID 는 지우고 내용만 남김</div>'
+    +(VC.items.length?'<table><tr><th>시각(한국)</th><th>ID</th><th>내용</th></tr>'+VC.items.map(function(x){ return '<tr><td style="white-space:nowrap">'+esc(x.kst)+'</td><td>'+(x.del?'<span class="msg">삭제된 계정</span>':esc(x.nick||x.id||"-"))+'</td><td style="white-space:pre-wrap;word-break:break-word;text-align:left">'+esc(x.text)+'</td></tr>'; }).join("")+'</table>':'<div class="msg">아직 없습니다.</div>')
+    +(VC.more?'<div class="row" style="margin-top:8px"><button onclick="vcLoad('+VC.items[VC.items.length-1].at+')">더 보기</button></div>':'')+'</div>'; }).catch(function(e){ $("pane").innerHTML='<div class="card err">'+errTx(e)+'</div>'; }); }
 function nrLoad(){ api("/near/admin?op=sum").then(function(j){ if(!j.ok) throw new Error(j.err); var s=j.stat||{};
   var g=j.gate||{on:0}, ge=!!j.gateEff;
   $("pane").innerHTML='<div class="card"><b>성인 인증 관문</b><div class="msg">켜면 노래방 사이트·StageSong 앱·투어앱 노래방을 열 때 로고 다음에 「StageSong은 만 15세 이상 이용가입니다」 화면이 뜨고, 본인인증(PASS·휴대폰)으로 만 15세 이상인 사람만 들어옵니다(15세 미만 = 이용 불가). 태어난 해·성별만 저장. <b>기본 켜짐</b> — 업체 연결 전에는 「본인인증」을 눌러도 「지금은 진행할 수 없습니다」 안내만 나오고, 사장님 기기(?me=EM2410)·아래 「수동 인증」 계정(화면의 「로그인하고 입장」)·이미 인증한 기기만 들어옵니다. 끄는 것은 잠깐 필요할 때만. 기기마다 1년·로그인 계정마다 한 번. 끄면 화면 없이 바로 노래방.</div>'
