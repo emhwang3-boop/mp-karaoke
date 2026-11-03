@@ -142,7 +142,7 @@ var DQ=(location.search.match(/[?&]dor=([A-Za-z0-9]{16})(?![A-Za-z0-9])/)||[])[1
 if(DQ){ try{ localStorage.setItem("kdor_inv",JSON.stringify({tok:DQ,at:Date.now()})); }catch(e){}
   try{ var dq2=location.search.slice(1).split("&").filter(function(x){ return !/^dor=/i.test(x); }).join("&"); history.replaceState(history.state,"",location.pathname+(dq2?"?"+dq2:"")+location.hash); }catch(e){} }
 function dTok(){ try{ var x=JSON.parse(localStorage.getItem("kdor_inv")||"null"); if(x&&/^[A-Za-z0-9]{16}$/.test(x.tok||"")&&Date.now()-(+x.at||0)<2*86400000) return x.tok; localStorage.removeItem("kdor_inv"); }catch(e){} return ""; }
-var DP=!!(DQ&&!isApp()&&!window.Capacitor&&!VQ&&!RQ);
+var DP=false;   // 🔴 도란도란 종료 (11-03) — 초대 카드 없이 노래방을 열고 karDorJoin 이 「도란도란 서비스는 종료되었습니다」 안내
 function dPage(){ var pre=document.getElementById("pre"); if(pre) pre.style.display="none"; var o=document.getElementById("karV"); if(o) o.remove();
   o=document.createElement("div"); o.id="karV"; document.body.appendChild(o);
   o.innerHTML='<div class="vin"><div class="vhd"><img src="logo.png" alt=""><div><b>Money Puzzle</b><small>StageSong</small></div></div>'
