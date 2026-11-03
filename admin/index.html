@@ -269,7 +269,7 @@ function ptNote(){ api("/shop/kadmin/ptnotice",{method:"POST",body:"{}"}).then(f
 
 // ── 곡 가격 (사장님 11-02) — 허브 kptcfg.song·bnd (GET /shop/kadmin/pt · 저장 POST /shop/kadmin/ptcfg {song,bnd}) · 100P 단위 · 끝자리 900 안 됨
 function psOk(v){ return v>=100&&v<=1000000&&v%100===0&&v%1000!==900; }
-var PSD={song:1000,bnd:[9500,18000,26000,42000,80000]}, PSN=[10,20,30,50,100];
+var PSD={song:1000,bnd:[9500,18000,26000,42000]}, PSN=[10,20,30,50];   /* (11-03) 100곡 묶음 뺌 */
 function psLoad(){ api("/shop/kadmin/pt").then(function(j){ if(!j.ok) throw new Error(j.err); var c=j.cfg, d=j.def||PSD; PSD={song:d.song,bnd:d.bnd}; PSN=j.bn||PSN; var on=(j.wallets||[]).filter(function(w){ return w.cr>0; }).sort(function(a,b){ return b.cr-a.cr; });
   $("pane").innerHTML='<div class="card"><b>곡 가격</b><div class="msg">재생이 시작될 때 1차감 · 차감 순서 = 이벤트 무료 곡 → 잔여 곡 → 포인트(유료 먼저) · 부르는 사람만 · 곡 묶음은 포인트로 구매, 유효기간 없음.<br>100P 단위, 끝자리 900 안 됨 (100~1,000,000P). 저장하면 PAYMENT 창에 바로 반영됩니다.</div><div class="tw"><table><tr><th>상품</th><th>가격(P)</th><th>곡당</th><th>기본값</th></tr>'
     +'<tr><td>1곡</td><td><input type="number" id="psS" min="100" max="1000000" step="100" value="'+c.song+'" style="width:110px"></td><td></td><td>'+PSD.song.toLocaleString()+'P</td></tr>'
@@ -383,7 +383,7 @@ function lvPlay(id){ lvA({op:"recurl",id:id},function(j){ $("lvPlay").innerHTML=
 var DCC={mkb:"마스크 기본",mkw:"마스크 여성용",mkm:"마스크 남성용",mka:"마스크 동물",mkh:"마스크 가발",mks:"마스크 세트·시즌",place:"장소",furniture:"가구",decor:"장식",bouquet:"꽃다발",food:"먹거리",party:"노래방",outdoor:"야외",pet:"동물"}, DCJ=null;
 function dcPOk(v,mx){ return Number.isInteger(v)&&v>=0&&v<=(mx||100000)&&v%100===0&&v%1000!==900; }
 function dcRd(x){ return Math.floor((x+499)/1000)*1000; }
-function dcAuto(p){ if(!(p>0)) return [0,0,0]; var a=Math.max(1000,dcRd(p*2.5)); return [p,a,Math.max(a,dcRd(p*5))]; }   // 허브 decoAuto 와 같음 — 7일 = ×2.5 · 30일 = ×5 (1,000P 단위, 딱 절반은 내림)
+function dcAuto(p){ if(!(p>0)) return [0,0,0]; var a=Math.max(1000,dcRd(p*2.5)); return [p,Math.min(50000,a),Math.min(50000,Math.max(a,dcRd(p*5)))]; }   /* (11-03) 자동 계산 값만 5만 P 까지 — 직접 넣는 값은 제한 없음(전과 같음) */   // 허브 decoAuto 와 같음 — 7일 = ×2.5 · 30일 = ×5 (1,000P 단위, 딱 절반은 내림)
 function dcOvIn(k,d,o,au){ var v=o&&o[d]||""; return '<input type="number" id="dco'+d+'_'+k+'" min="0" max="500000" step="100" value="'+v+'" placeholder="'+au.toLocaleString()+'" title="비워 두면 자동" style="width:88px">P'; }
 function dcLoad(){ api("/shop/kadmin/deco").then(function(j){ if(!j.ok) throw new Error(j.err); DCJ=j; var c=j.cfg, t=j.today||{}, nm={};
   j.items.forEach(function(x){ nm[x.k]=x.nm; }); j.sets.forEach(function(x){ nm[x.k]="세트 · "+x.nm; });
@@ -404,7 +404,7 @@ function dcVals(){ var p={}, s={}, o={}, ov=function(k){ var e=$("dco7_"+k); if(
 function dcSums(){ if(!DCJ) return; var v=dcVals(), ph=function(k,n){ var a=dcAuto(n), e7=$("dco7_"+k), e3=$("dco30_"+k); if(e7) e7.placeholder=a[1].toLocaleString(); if(e3) e3.placeholder=a[2].toLocaleString(); }; DCJ.items.forEach(function(x){ ph(x.k,v.p[x.k]); }); DCJ.sets.forEach(function(x){ ph(x.k,v.s[x.k]); var e=$("dcsum_"+x.k), sum=x.it.reduce(function(a,k){ return a+(v.p[k]||0); },0); if(e) e.textContent=sum.toLocaleString()+"P"; }); }
 function dcPut(b){ api("/shop/kadmin/deco",{method:"POST",body:JSON.stringify(b)}).then(function(j){ if(!j.ok) throw new Error(j.err==="setsum"?"세트 가격이 낱개 합("+(j.sum||0).toLocaleString()+"P)보다 낮아야 합니다":j.err==="price"?"가격을 확인해 주세요 ("+(j.k||"")+")":j.err==="ord"?"기간이 길수록 비싸야 합니다 ("+(j.k||"")+")":j.err); alert("저장했습니다."); dcLoad(); }).catch(function(e){ alert(errTx(e).replace(/<[^>]+>/g,"")); }); }
 function dcSave(){ var v=dcVals(), bad=[], p={}, s={}, o={}, co=DCJ.cfg.o||{}, nmOf=function(k){ var a=DCJ.items.concat(DCJ.sets).filter(function(x){ return x.k===k; })[0]; return a?a.nm:k; };
-  Object.keys(v.o).forEach(function(k){ var e=v.o[k], c0=co[k]||{}, p1=DCJ.items.some(function(x){ return x.k===k; })?v.p[k]:v.s[k], au=dcAuto(p1); if(!dcPOk(e[7],500000)||!dcPOk(e[30],500000)) bad.push(nmOf(k)+" 7일·30일"); else if((e[7]||au[1])<=p1||(e[30]||au[2])<=(e[7]||au[1])) bad.push(nmOf(k)+" 7일·30일(기간이 길수록 비싸게)"); else if(e[7]!==(c0[7]||0)||e[30]!==(c0[30]||0)) o[k]=e; });
+  Object.keys(v.o).forEach(function(k){ var e=v.o[k], c0=co[k]||{}, p1=DCJ.items.some(function(x){ return x.k===k; })?v.p[k]:v.s[k], au=dcAuto(p1); if(!dcPOk(e[7],500000)||!dcPOk(e[30],500000)) bad.push(nmOf(k)+" 7일·30일"); else if((e[7]||au[1])<=p1||((e[30]||au[2])<=(e[7]||au[1])&&!((e[7]||au[1])===50000&&(e[30]||au[2])===50000))) bad.push(nmOf(k)+" 7일·30일(기간이 길수록 비싸게)"); else if(e[7]!==(c0[7]||0)||e[30]!==(c0[30]||0)) o[k]=e; });
   DCJ.items.forEach(function(x){ var n=v.p[x.k]; if(!dcPOk(n)||(x.k!=="pl_noraebang"&&n<100)) bad.push(x.nm); else if(n!==DCJ.cfg.p[x.k]) p[x.k]=n; });
   DCJ.sets.forEach(function(x){ var n=v.s[x.k], sum=x.it.reduce(function(a,k){ return a+(v.p[k]||0); },0); if(!dcPOk(n)||n<1000) bad.push(x.nm+" 세트"); else if(n>=sum) bad.push(x.nm+" 세트(낱개 합 "+sum.toLocaleString()+"P보다 낮게)"); else if(n!==DCJ.cfg.s[x.k]) s[x.k]=n; });
   if(bad.length){ alert("가격을 확인해 주세요 (100P 단위 · 끝자리 900 안 됨)\n"+bad.join("\n")); return; }
