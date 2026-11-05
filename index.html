@@ -19,7 +19,7 @@
 <script>/* 11-04 사장님 — 노래방 비공개: 암호 건 사람만 (뉴스앱 mp_news_ok 와 같은 방식 · 암호 원문은 코드에 안 넣음 · 대소문자 무관)
    · 폰 앱(StageSong, Capacitor — 이 사이트를 원격으로 엶)은 관문 없이 그대로: Capacitor.isNativePlatform() 또는 앱 UA「StageSongApp」
    · 안 통과면 이 아래(노래방 화면·스크립트)는 <plaintext> 로 글자로만 남겨 실행 안 하고 암호 창만 (window.stop 은 화면이 안 그려져서 안 씀) → 통과하면 같은 주소(?v= 영상·?gp= 사진·초대 링크 그대로)로 다시 연다 */
-(function(){var K="mp_kara_ok",H="12e272986a6207888e3001fab97f1f44b2ba72a6edb9584273aa7ad003e7098c";
+(function(){var K="mp_kara_ok",H="12e272986a6207888e3001fab97f1f44b2ba72a6edb9584273aa7ad003e7098c",H2="2a55b7a72a846326cceacaeaac5e5a363f5fd92e2fda51ddcfdcd998f843286e";
 try{if(localStorage.getItem(K)==="1")return}catch(e){}
 try{if(sessionStorage.getItem(K)==="1")return}catch(e){}
 try{var C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform())return}catch(e){}
@@ -34,7 +34,7 @@ var st=document.createElement("style");st.id="kpgs";st.textContent="body>*:not(#
 function sha(s){return crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)).then(function(b){return Array.prototype.map.call(new Uint8Array(b),function(x){return("0"+x.toString(16)).slice(-2)}).join("")})}
 var d=document.createElement("div");d.id="kpg";d.innerHTML='<form><b>🔒</b><p>'+t[0]+'<small>'+t[1]+'</small></p><input type="password" autocomplete="current-password" aria-label="Password"><button type="submit">'+t[2]+'</button><i></i></form>';(document.body||document.documentElement).appendChild(d);
 var f=d.querySelector("form"),n=d.querySelector("input"),m=d.querySelector("i");try{n.focus()}catch(e){}
-f.onsubmit=function(e){e.preventDefault();sha(String(n.value||"").trim().toUpperCase()).then(function(h){if(h===H){try{localStorage.setItem(K,"1")}catch(x){}try{sessionStorage.setItem(K,"1")}catch(x){}location.reload()}else{m.textContent="✕ "+t[3];n.value="";n.focus()}})}})();</script>
+f.onsubmit=function(e){e.preventDefault();sha(String(n.value||"").trim().toUpperCase()).then(function(h){if(h===H||h===H2){try{localStorage.setItem(K,"1")}catch(x){}try{sessionStorage.setItem(K,"1")}catch(x){}location.reload()}else{m.textContent="✕ "+t[3];n.value="";n.focus()}})}})();</script>
 <style>
 /* 머니퍼즐 노래방 전용 사이트 (karaoke.moneypuzzle.co.kr, 2026-10-30) — 화면 본체는 투어앱과 같은 karaoke.js(#karBox), 이 파일은 머리글·언어·설치·로그인만 잇는다 */
 :root{--bg:#12081f;--card:#fff;--ink:#111827;--sub:#5b6474;--line:#e6e9ef}
